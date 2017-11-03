@@ -1,0 +1,12 @@
+# Composer
+composer.phar
+composer.lock
+
+# Doctrine generator bundle entity backup files
+**/Entity/*~
+
+# Misc
+*.sublime-workspace
+
+# Always keep!
+!.gitkeep

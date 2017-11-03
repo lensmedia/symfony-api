@@ -1,0 +1,22 @@
+{
+    "name": "lensmedia/symfony-api",
+    "type": "symfony-bundle",
+    "description": "Lensmedia API bundle, core functionality for setting up an API.",
+    "authors": [
+        {
+            "name": "Lensmedia",
+            "homepage": "https://www.lensmedia.nl"
+        },
+        {
+            "name": "Jenne van der Meer",
+            "email": "j.vandermeer@lensmedia.nl"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "symfony/symfony": "3.*"
+    },
+    "autoload": {
+        "psr-4": { "Lens\\Bundle\\ApiBundle\\": "src" }
+    }
+}

@@ -1,0 +1,29 @@
+# Load lens api bundle services
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    # Event listeners
+    lens.api.subscriber.content_negotiation:
+        class: Lens\Bundle\ApiBundle\EventListener\ContentNegotiationSubscriber
+
+    lens.api.subscriber.serialize:
+        class: Lens\Bundle\ApiBundle\EventListener\SerializeSubscriber
+
+    lens.api.subscriber.exception:
+        class: Lens\Bundle\ApiBundle\EventListener\ExceptionSubscriber
+
+    lens.api.subscriber.cors:
+        class: Lens\Bundle\ApiBundle\EventListener\CorsSubscriber
+
+    # Import our default api normalizers.
+    lens.api.normalizer.exception:
+        class: Lens\Bundle\ApiBundle\Serializer\Normalizer\ExceptionNormalizer
+
+    lens.api.normalizer.link_collection:
+        class: Lens\Bundle\ApiBundle\Serializer\Normalizer\LinkCollectionNormalizer
+
+    lens.api.normalizer.resource:
+        class: Lens\Bundle\ApiBundle\Serializer\Normalizer\ResourceNormalizer

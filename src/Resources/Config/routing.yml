@@ -1,0 +1,6 @@
+api_catch_all:
+    path: /{catchall}
+    defaults:
+        _controller: 'LensApiBundle:Api:catchAll'
+    requirements:
+        catchall: .+
