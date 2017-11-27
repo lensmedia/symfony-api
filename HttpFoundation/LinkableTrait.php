@@ -1,9 +1,7 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Hateoas;
+namespace Lens\Bundle\ApiBundle\HttpFoundation;
 
-use Lens\Bundle\ApiBundle\Hateoas\Link;
-use Lens\Bundle\ApiBundle\Hateoas\LinkCollection;
 use OutOfRangeException;
 use OverflowException;
 
@@ -28,10 +26,10 @@ trait LinkableTrait {
 	 *
 	 * @param Link $link
 	 *
-	 * @return Instance of the class using this trait.
+	 * @return $this
 	 */
 	public function addLink(Link $link) {
-		if ($this->hasLink($name)) {
+		if ($this->hasLink($link)) {
 			throw new OverflowException(sprintf("A link with the name '%s' already exists. Change that object instance instead, or remove it first.", $name));
 		}
 
@@ -45,7 +43,7 @@ trait LinkableTrait {
 	 *
 	 * @param  Link|string $link Link object or name.
 	 *
-	 * @return Instance of the class using this trait.
+	 * @return $this
 	 */
 	public function removeLink($link) {
 		if (!$this->hasLink($link)) {
@@ -71,7 +69,22 @@ trait LinkableTrait {
 			return false;
 		}
 
+		if ($link instanceof Link) {
+			$link = $link->getName();
+		}
+
 		return isset($this->_links[$link]);
+	}
+
+	/**
+	 * Removes all links from the collection.
+	 *
+	 * @return $this
+	 */
+	public function clearLinks() {
+		$this->_links = new LinkCollection();
+
+		return $this;
 	}
 
 	/**

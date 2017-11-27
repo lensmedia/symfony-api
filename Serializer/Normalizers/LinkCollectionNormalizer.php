@@ -1,9 +1,9 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Serializer\Normalizer;
+namespace Lens\Bundle\ApiBundle\Serializer\Normalizers;
 
-use Lens\Bundle\ApiBundle\Hateoas\Link;
-use Lens\Bundle\ApiBundle\Hateoas\LinkCollection;
+use Lens\Bundle\ApiBundle\HttpFoundation\Link;
+use Lens\Bundle\ApiBundle\HttpFoundation\LinkCollection;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 

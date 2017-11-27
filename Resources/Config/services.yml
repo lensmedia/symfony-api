@@ -1,8 +1,8 @@
 # Load lens api bundle services
 services:
     _defaults:
-        autowire: true
         autoconfigure: true
+        autowire: true
         public: false
 
     # Event listeners
@@ -20,10 +20,13 @@ services:
 
     # Import our default api normalizers.
     lens.api.normalizer.exception:
-        class: Lens\Bundle\ApiBundle\Serializer\Normalizer\ExceptionNormalizer
+        class: Lens\Bundle\ApiBundle\Serializer\Normalizers\ExceptionNormalizer
 
     lens.api.normalizer.link_collection:
-        class: Lens\Bundle\ApiBundle\Serializer\Normalizer\LinkCollectionNormalizer
+        class: Lens\Bundle\ApiBundle\Serializer\Normalizers\LinkCollectionNormalizer
 
-    lens.api.normalizer.resource:
-        class: Lens\Bundle\ApiBundle\Serializer\Normalizer\ResourceNormalizer
+    # Inherited classes (dont tag themselves)
+    # Also need container arg
+    lens.api.normalizer.api_response:
+        class: Lens\Bundle\ApiBundle\Serializer\Normalizers\ApiResponseNormalizer
+        tags: [serializer.normalizer]

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Hateoas;
+namespace Lens\Bundle\ApiBundle\HttpFoundation;
 
 interface LinkableInterface {
 	/**
@@ -10,35 +10,42 @@ interface LinkableInterface {
 	 *
 	 * @return Link
 	 */
-	function getLink(string $name);
+	public function getLink(string $name);
 
 	/**
 	 * Adds a link to our collection
 	 *
 	 * @param  Link $link
 	 */
-	function addLink(Link $link);
+	public function addLink(Link $link);
 
 	/**
 	 * Removes a link by name or object.
 	 *
 	 * @param  string|Link $link
 	 */
-	function removeLink($link);
+	public function removeLink($link);
 
 	/**
 	 * Checks if a link name specified by string or Link object is already exists.
 	 *
 	 * @param  string|Link $link
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
-	function hasLink($link);
+	public function hasLink($link);
+
+	/**
+	 * Removes all links from the collection.
+	 *
+	 * @return $this
+	 */
+	public function clearLinks();
 
 	/**
 	 * Returns our link collection object.
 	 *
 	 * @return LinkCollection
 	 */
-	function getLinkCollection();
+	public function getLinkCollection();
 }

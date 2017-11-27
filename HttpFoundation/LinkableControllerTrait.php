@@ -1,6 +1,6 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Hateoas;
+namespace Lens\Bundle\ApiBundle\HttpFoundation;
 
 use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;

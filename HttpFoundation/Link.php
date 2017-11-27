@@ -1,8 +1,6 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Hateoas;
-
-use Lens\Bundle\ApiBundle\Serializer\Normalizer\AbstractApiNormalizer;
+namespace Lens\Bundle\ApiBundle\HttpFoundation;
 
 /**
  * HATEOAS Link class, currently not supporting curies yet.

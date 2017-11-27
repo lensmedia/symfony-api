@@ -1,6 +1,6 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Serializer\Normalizer;
+namespace Lens\Bundle\ApiBundle\Serializer\Normalizers;
 
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -38,6 +38,6 @@ class ExceptionNormalizer implements NormalizerInterface {
 	}
 
 	public function supportsNormalization($data, $format = null) {
-		return ($data instanceof \Exception);
+		return $data instanceof \Exception;
 	}
 }
