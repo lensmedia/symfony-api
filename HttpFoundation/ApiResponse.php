@@ -11,17 +11,19 @@ use Symfony\Component\HttpFoundation\Response;
 class ApiResponse extends Response implements LinkableInterface, EmbeddableInterface {
 	use ResourceTrait;
 
-	protected $data = null;
+	protected $data    = null;
+	protected $context = [];
 
 	/**
 	 * @param mixed $data    The response data
 	 * @param int   $status  The response status code
 	 * @param array $headers An array of response headers
 	 */
-	public function __construct($data = null, $status = 200, $headers = []) {
+	public function __construct($data = null, $status = 200, $headers = [], $context = []) {
 		parent::__construct('', $status, $headers);
 
-		$this->data = $data;
+		$this->context = $context;
+		$this->data    = $data;
 	}
 
 	/**
@@ -33,22 +35,24 @@ class ApiResponse extends Response implements LinkableInterface, EmbeddableInter
 	 *
 	 * @return ApiResponse
 	 */
-	public static function create($data = null, $status = 200, $headers = []) {
-		return new static($data, $status, $headers);
+	public static function create($data = null, $status = 200, $headers = [], $context = []) {
+		return new static($data, $status, $headers, $context);
 	}
 
-	/**
-	 * Set the Api response data.
-	 */
 	public function setData($data) {
 		$this->data = $data;
 	}
 
-	/**
-	 * Returns Api reponse data.
-	 */
 	public function getData() {
 		return $this->data;
+	}
+
+	public function setContext($context) {
+		$this->context = $context;
+	}
+
+	public function getContext() {
+		return is_array($this->context) ? $this->context : [];
 	}
 
 	/**

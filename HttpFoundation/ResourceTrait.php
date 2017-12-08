@@ -61,6 +61,27 @@ trait ResourceTrait {
 	}
 
 	/**
+	 * Get current user
+	 *
+	 * @return User
+	 */
+	protected function getUser() {
+		if (!$this->container->has('security.token_storage')) {
+			throw new \LogicException('The SecurityBundle is not registered in your application.');
+		}
+
+		if (null === $token = $this->container->get('security.token_storage')->getToken()) {
+			return;
+		}
+
+		if (!is_object($user = $token->getUser())) {
+			return;
+		}
+
+		return $user;
+	}
+
+	/**
 	 * Match route.
 	 */
 	public function matchRoute($routes) {

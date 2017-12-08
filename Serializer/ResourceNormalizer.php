@@ -2,6 +2,7 @@
 
 namespace Lens\Bundle\ApiBundle\Serializer;
 
+use Lens\Bundle\ApiBundle\HttpFoundation\ApiResponse;
 use Lens\Bundle\ApiBundle\HttpFoundation\EmbeddableInterface;
 use Lens\Bundle\ApiBundle\HttpFoundation\EmbeddableTrait;
 use Lens\Bundle\ApiBundle\HttpFoundation\Link;
@@ -35,10 +36,14 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
 		$this->clearEmbedded();
 
 		// Call process function, this is also where one can add links etc.
+		if ($object instanceof ApiResponse) {
+			$context += $object->getContext();
+		}
 		$data = $this->process($object, $format, $context);
 
 		// Check if we have links & embedded.
-		$links    = $this->getLinkCollection();
+		$links = $this->getLinkCollection();
+
 		$embedded = $this->getEmbedded();
 
 		// If we do not have an array we return the plain data.

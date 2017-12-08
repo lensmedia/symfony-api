@@ -19,7 +19,7 @@ class ApiResponseNormalizer extends ResourceNormalizer {
 
 		// Return the resource data
 
-		return $this->serializer->normalize($apiResponse->getData(), $format, $context);
+		return $this->serializer->normalize($apiResponse->getData(), $format, $context + $apiResponse->getContext());
 	}
 
 	public function supportsNormalization($data, $format = null) {

@@ -5,15 +5,16 @@ namespace Lens\Bundle\ApiBundle\Controller;
 use Lens\Bundle\ApiBundle\HttpFoundation\ApiResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ApiController extends Controller {
-	public function getManager() {
+	protected function getManager() {
 		return $this
 			->getDoctrine()
 			->getManager();
 	}
 
-	public function getRepository(string $class) {
+	protected function getRepository(string $class) {
 		return $this
 			->getManager()
 			->getRepository($class);
