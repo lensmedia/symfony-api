@@ -73,7 +73,9 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
 			// so we can still append the links and embedded resources.
 			// Otherwise just return the data as value.
 			if ((count($links) && $context['hateoas']) || count($embedded)) {
-				$data = ['data' => $data];
+				if (null !== $data) {
+					$data = ['data' => $data];
+				}
 			} else {
 				return $data;
 			}

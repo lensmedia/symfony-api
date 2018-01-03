@@ -1,25 +1,38 @@
 <?php
-
 namespace Lens\Bundle\ApiBundle\EventListener;
 
 use InvalidArgumentException;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Lens\Bundle\ApiBundle\Controller\ApiController;
 use Lens\Bundle\ApiBundle\HttpFoundation\ApiResponse;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SerializeSubscriber extends AbstractApiEventSubscriber {
+	/**
+	 * @var mixed
+	 */
 	protected $container;
+	/**
+	 * @var mixed
+	 */
 	protected $serializer;
 
+	/**
+	 * @param ContainerInterface  $container
+	 * @param SerializerInterface $serializer
+	 */
 	public function __construct(ContainerInterface $container, SerializerInterface $serializer) {
 		$this->container  = $container;
 		$this->serializer = $serializer;
 	}
 
+	/**
+	 * @param  FilterResponseEvent $event
+	 * @return null
+	 */
 	public function onKernelResponse(FilterResponseEvent $event) {
 		$request = $event->getRequest();
 		if (!$this->isApiRequest($request)) {
@@ -51,7 +64,7 @@ class SerializeSubscriber extends AbstractApiEventSubscriber {
 		// Serialize
 		$content = $this->serializer->serialize($data, $request->getRequestFormat(), [
 			'json_encode_options' => JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
-			'hateoas'             => $this->container->getParameter('lens_api.hateoas'),
+			'hateoas'             => $this->container->getParameter('lens_api.hateoas')
 		]);
 
 		$response->setContent($content);
@@ -60,7 +73,7 @@ class SerializeSubscriber extends AbstractApiEventSubscriber {
 
 	public static function getSubscribedEvents() {
 		return [
-			KernelEvents::RESPONSE => ['onKernelResponse', -4096],
+			KernelEvents::RESPONSE => ['onKernelResponse', -4096]
 		];
 	}
 }
