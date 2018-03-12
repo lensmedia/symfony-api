@@ -65,8 +65,9 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
 
         // Call process function, this is also where one can add links etc.
         if ($object instanceof ApiResponse) {
-            $context += $object->getContext();
+            $context = array_merge_recursive($object->getContext(), $context);
         }
+
         $data = $this->process($object, $format, $context);
 
         // Check if we have links & embedded.
@@ -78,7 +79,7 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
             // If we did have some links or embedded convert our data value into an array
             // so we can still append the links and embedded resources.
             // Otherwise just return the data as value.
-            if ((count($links) && $context['hateoas']) || count($embedded)) {
+            if ((count($links) && $this->isHateoas()) || count($embedded)) {
                 if (null !== $data) {
                     $data = ['data' => $data];
                 }
@@ -90,7 +91,7 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
         $output = [];
 
         // Add links to our output.
-        if (count($links) && $context['hateoas']) {
+        if (count($links) && $this->isHateoas()) {
             $output = array_merge_recursive($output, ['_links' => $this->serializer->normalize($links, $format, $context)]);
         }
 
@@ -114,7 +115,7 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
      */
     protected function isHateoas()
     {
-        return true === $this->hateoas;
+        return $this->hateoas;
     }
 
     /**

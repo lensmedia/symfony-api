@@ -2,5 +2,6 @@
 
 namespace Lens\Bundle\ApiBundle\Exception;
 
-interface ExceptionInterface {
+interface ExceptionInterface
+{
 }
