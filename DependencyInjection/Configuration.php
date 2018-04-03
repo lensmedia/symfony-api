@@ -28,8 +28,8 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('hateoas')
                     ->defaultTrue()
                 ->end()
-                ->booleanNode('exclusive')
-                    ->defaultFalse()
+                ->arrayNode('default_context')
+                    ->scalarPrototype()->end()
                 ->end()
             ->end();
 

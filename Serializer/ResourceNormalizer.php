@@ -7,15 +7,14 @@ use Lens\Bundle\ApiBundle\HttpFoundation\ApiResponse;
 use Lens\Bundle\ApiBundle\HttpFoundation\EmbeddableInterface;
 use Lens\Bundle\ApiBundle\HttpFoundation\LinkableInterface;
 use Lens\Bundle\ApiBundle\HttpFoundation\ResourceTrait;
+use Lens\Bundle\SerializerBundle\Serializer\Normalizer\NormalizerInterface;
+use Lens\Bundle\SerializerBundle\Serializer\Serializer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\SerializerAwareInterface;
-use Symfony\Component\Serializer\SerializerAwareTrait;
 
-abstract class ResourceNormalizer implements SerializerAwareInterface, NormalizerInterface, LinkableInterface, EmbeddableInterface
+abstract class ResourceNormalizer implements NormalizerInterface, LinkableInterface, EmbeddableInterface
 {
-    use ResourceTrait, SerializerAwareTrait;
+    use ResourceTrait;
 
     /**
      * @var Symfony\Component\DependencyInjection\ContainerInterface
@@ -37,16 +36,19 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
      */
     protected $hateoas = false;
 
+    protected $serializer;
+
     /**
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container, RouterInterface $router, EntityManagerInterface $manager)
+    public function __construct(ContainerInterface $container, RouterInterface $router, EntityManagerInterface $manager, Serializer $serializer)
     {
         // *note* serializer has to be done using the serializer aware interface
         //        getting it from the container results in a circular reference error.
         $this->container = $container;
         $this->router = $router;
         $this->entityManager = $manager;
+        $this->serializer = $serializer;
         $this->hateoas = $container->getParameter('lens_api.hateoas') ?? false;
     }
 
@@ -65,7 +67,7 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
 
         // Call process function, this is also where one can add links etc.
         if ($object instanceof ApiResponse) {
-            $context = array_merge_recursive($object->getContext(), $context);
+            $context = $object->getContext() + $context;
         }
 
         $data = $this->process($object, $format, $context);
@@ -129,11 +131,11 @@ abstract class ResourceNormalizer implements SerializerAwareInterface, Normalize
      *
      * @return mixed
      */
-    abstract public function process($object, $format = null, array $context = []);
+    abstract public function process($data, string $format = null, array $context = []);
 
     /**
      * @param $data   Mixed  data to test if it supported
      * @param $format Format the normalization result will be encoded as
      */
-    abstract public function supportsNormalization($data, $format = null);
+    abstract public function supportsNormalization($data, string $format = null, array $context = []): bool;
 }

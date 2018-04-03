@@ -3,13 +3,13 @@
 namespace Lens\Bundle\ApiBundle\EventListener;
 
 use InvalidArgumentException;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Lens\Bundle\ApiBundle\Controller\ApiController;
 use Lens\Bundle\ApiBundle\HttpFoundation\ApiResponse;
-use Symfony\Component\Serializer\SerializerInterface;
+use Lens\Bundle\SerializerBundle\Serializer\Serializer;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class SerializeSubscriber extends AbstractApiEventSubscriber
 {
@@ -17,6 +17,7 @@ class SerializeSubscriber extends AbstractApiEventSubscriber
      * @var mixed
      */
     protected $container;
+
     /**
      * @var mixed
      */
@@ -26,7 +27,7 @@ class SerializeSubscriber extends AbstractApiEventSubscriber
      * @param ContainerInterface  $container
      * @param SerializerInterface $serializer
      */
-    public function __construct(ContainerInterface $container, SerializerInterface $serializer)
+    public function __construct(ContainerInterface $container, Serializer $serializer)
     {
         $this->container = $container;
         $this->serializer = $serializer;
@@ -38,12 +39,12 @@ class SerializeSubscriber extends AbstractApiEventSubscriber
     public function onKernelResponse(FilterResponseEvent $event)
     {
         $request = $event->getRequest();
-        if (!$this->isApiRequest($request)) {
+        $response = $event->getResponse();
+        if (!$this->isApiRequest($request, $response)) {
             return;
         }
 
         // Get our response and check if it is an api response.
-        $response = $event->getResponse();
         if (!$response instanceof ApiResponse) {
             // Allow file responses
             if ($response instanceof BinaryFileResponse) {
@@ -65,16 +66,11 @@ class SerializeSubscriber extends AbstractApiEventSubscriber
         $data = [$index => $response];
 
         // Serialize
-        $context = [
-            'json_encode_options' => JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
-            'hateoas' => $this->container->getParameter('lens_api.hateoas'),
-        ];
-
-        if (true === $this->container->getParameter('lens_api.exclusive')) {
-            $context['groups'] = ['default'];
-        }
-
-        $content = $this->serializer->serialize($data, $request->getRequestFormat(), $context);
+        $content = $this->serializer->serialize(
+            $data,
+            $request->getRequestFormat(),
+            $response->getContext()
+        );
 
         $response->setContent($content);
         $response->headers->set('content-type', 'application/json');

@@ -7,7 +7,7 @@ use Lens\Bundle\ApiBundle\Serializer\ResourceNormalizer;
 
 class ApiResponseNormalizer extends ResourceNormalizer
 {
-    public function process($apiResponse, $format = null, array $context = [])
+    public function process($apiResponse, string $format = null, array $context = [])
     {
         // Convert reponse links to ApiNormalizer links (internal)
         foreach ($apiResponse->getLinkCollection() as $link) {
@@ -25,7 +25,7 @@ class ApiResponseNormalizer extends ResourceNormalizer
         return $this->serializer->normalize($apiResponse->getData(), $format, $context);
     }
 
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, string $format = null, array $context = []): bool
     {
         return $data instanceof ApiResponse;
     }

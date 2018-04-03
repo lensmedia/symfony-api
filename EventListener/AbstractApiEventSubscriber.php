@@ -5,6 +5,7 @@ namespace Lens\Bundle\ApiBundle\EventListener;
 use Lens\Bundle\ApiBundle\Controller\ApiController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Core API event subscriber things.
@@ -18,11 +19,11 @@ abstract class AbstractApiEventSubscriber implements EventSubscriberInterface
      *
      * @return bool
      */
-    protected static function isApiRequest(Request $request)
+    protected static function isApiRequest(Request $request, Response $response = null): bool
     {
+        echo 'controller '.$request->headers->get('host');
         // Strip the method call.
         $requestControllerClass = strstr($request->get('_controller'), ':', true);
-
         if (false === $requestControllerClass) {
             return false;
         }

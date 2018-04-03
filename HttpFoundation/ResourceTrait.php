@@ -8,8 +8,6 @@ trait ResourceTrait
 {
     use LinkableTrait, EmbeddableTrait;
 
-    protected $count;
-
     /**
      * Shorthand helper alias for adding links.
      */
@@ -25,9 +23,7 @@ trait ResourceTrait
      */
     public function embed(string $name, $resource, bool $merge = true)
     {
-        $this->addEmbedded($name, $resource, $merge);
-
-        return $this;
+        return $this->addEmbedded($name, $resource, $merge);
     }
 
     /**

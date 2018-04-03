@@ -15,7 +15,7 @@ class LensApiExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter('lens_api.hateoas', $config['hateoas']);
-        $container->setParameter('lens_api.exclusive', $config['exclusive']);
+        $container->setParameter('lens_api.default_context', $config['default_context']);
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/Config'));
         $loader->load('config.yml');

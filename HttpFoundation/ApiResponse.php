@@ -17,7 +17,7 @@ class ApiResponse extends Response implements LinkableInterface, EmbeddableInter
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
      */
-    public function __construct($data = null, $status = 200, $headers = [], $context = [])
+    public function __construct($data = null, int $status = 200, array $headers = [], array $context = [])
     {
         parent::__construct('', $status, $headers);
 
@@ -49,14 +49,14 @@ class ApiResponse extends Response implements LinkableInterface, EmbeddableInter
         return $this->data;
     }
 
-    public function setContext($context)
+    public function setContext(array $context)
     {
         $this->context = $context;
     }
 
     public function getContext()
     {
-        return is_array($this->context) ? $this->context : [];
+        return $this->context;
     }
 
     /**
@@ -79,6 +79,17 @@ class ApiResponse extends Response implements LinkableInterface, EmbeddableInter
 
             $this->embed($name, $resource, $merge);
         }
+
+        return $this;
+    }
+
+    public function group(string ...$groups)
+    {
+        if (!isset($this->context['groups'])) {
+            $this->context['groups'] = [];
+        }
+
+        $this->context['groups'] = array_merge($this->context['groups'], $groups);
 
         return $this;
     }

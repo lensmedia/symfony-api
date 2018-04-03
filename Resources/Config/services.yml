@@ -6,27 +6,20 @@ services:
         public: false
 
     # Event listeners
-    lens.api.subscriber.content_negotiation:
-        class: Lens\Bundle\ApiBundle\EventListener\ContentNegotiationSubscriber
-
-    lens.api.subscriber.serialize:
-        class: Lens\Bundle\ApiBundle\EventListener\SerializeSubscriber
-
-    lens.api.subscriber.exception:
-        class: Lens\Bundle\ApiBundle\EventListener\ExceptionSubscriber
-
-    lens.api.subscriber.cors:
-        class: Lens\Bundle\ApiBundle\EventListener\CorsSubscriber
+    Lens\Bundle\ApiBundle\EventListener\ContentNegotiationSubscriber: ~
+    # Lens\Bundle\ApiBundle\EventListener\CorsSubscriber: ~
+    Lens\Bundle\ApiBundle\EventListener\SerializeSubscriber: ~
+    Lens\Bundle\ApiBundle\EventListener\ExceptionSubscriber: ~
 
     # Import our default api normalizers.
-    lens.api.normalizer.exception:
-        class: Lens\Bundle\ApiBundle\Serializer\Normalizers\ExceptionNormalizer
+    Lens\Bundle\ApiBundle\Serializer\Normalizers\ExceptionNormalizer:
+        tags:
+            - { name: lens_serializer.normalizer, priority: 980 }
 
-    lens.api.normalizer.link_collection:
-        class: Lens\Bundle\ApiBundle\Serializer\Normalizers\LinkCollectionNormalizer
+    Lens\Bundle\ApiBundle\Serializer\Normalizers\LinkCollectionNormalizer:
+        tags:
+            - { name: lens_serializer.normalizer, priority: 970 }
 
-    # Inherited classes (dont tag themselves)
-    # Also need container arg
-    lens.api.normalizer.api_response:
-        class: Lens\Bundle\ApiBundle\Serializer\Normalizers\ApiResponseNormalizer
-        tags: [serializer.normalizer]
+    Lens\Bundle\ApiBundle\Serializer\Normalizers\ApiResponseNormalizer:
+        tags:
+            - { name: lens_serializer.normalizer, priority: 990 }

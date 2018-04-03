@@ -2,7 +2,7 @@
 
 namespace Lens\Bundle\ApiBundle\EventListener;
 
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class ContentNegotiationSubscriber extends AbstractApiEventSubscriber
 {
-    public function onKernelResponse(FilterResponseEvent $event)
+    public function onKernelRequest(GetResponseEvent $event)
     {
         $request = $event->getRequest();
         if (!$this->isApiRequest($request)) {
@@ -26,7 +26,7 @@ class ContentNegotiationSubscriber extends AbstractApiEventSubscriber
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::RESPONSE => ['onKernelResponse', -2048],
+            KernelEvents::REQUEST => ['onKernelRequest', 4096],
         ];
     }
 }
