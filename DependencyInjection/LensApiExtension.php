@@ -2,9 +2,11 @@
 
 namespace Lens\Bundle\ApiBundle\DependencyInjection;
 
+use Lens\Bundle\ApiBundle\Utils\Api;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class LensApiExtension extends Extension
@@ -14,10 +16,13 @@ class LensApiExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('lens_api.hateoas', $config['hateoas']);
-        $container->setParameter('lens_api.default_context', $config['default_context']);
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yaml');
 
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/Config'));
-        $loader->load('config.yml');
+        // Set constructor arguments for our Api service class.
+        $api = $container
+            ->getDefinition(Api::class)
+            ->replaceArgument(0, $config)
+            ->replaceArgument(1, new Reference($config['serializer']));
     }
 }
