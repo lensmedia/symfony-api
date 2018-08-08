@@ -13,7 +13,10 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface
 {
     const DEFAULTS = [
-        'serializer' => 'serializer',
+        'serializer' => [
+            'id' => 'serializer',
+            'default_context' => [],
+        ],
         'accept' => 'application/json',
 
         // access control is a sub section of each entry point
@@ -39,13 +42,29 @@ class Configuration implements ConfigurationInterface
         // more information on that topic.
         $rootNode
             ->children()
-                ->scalarNode('serializer')->defaultValue(self::DEFAULTS['serializer'])->end()
+                ->append($this->addSerializerNode())
                 ->scalarNode('accept')->defaultValue(self::DEFAULTS['accept'])->end()
                 ->append($this->addFormatNode())
                 ->append($this->addEntryPointNode())
             ->end();
 
         return $treeBuilder;
+    }
+
+    private function addSerializerNode()
+    {
+        $treeBuilder = new TreeBuilder();
+        $node = $treeBuilder->root('serializer');
+
+        $node
+            ->children()
+                ->scalarNode('id')->defaultValue(self::DEFAULTS['serializer']['id'])->end()
+                ->arrayNode('default_context')
+                    ->scalarPrototype()->end()
+                ->end()
+            ->end();
+
+        return $node;
     }
 
     private function addFormatNode()

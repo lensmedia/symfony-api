@@ -4,11 +4,14 @@ namespace Lens\Bundle\ApiBundle\EventListener;
 
 use Exception;
 use Lens\Bundle\ApiBundle\Utils\Api;
+use Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Our exception handler (for catching errors within our api sections).
@@ -16,10 +19,16 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 final class ExceptionListener
 {
     private $api;
+    private $contextBuilder;
+    private $serializer;
+    private $logger;
 
-    public function __construct(Api $api = null)
+    public function __construct(Api $api = null, SerializerInterface $serializer, ContextBuilderInterface $contextBuilder, LoggerInterface $logger)
     {
         $this->api = $api;
+        $this->serializer = $serializer;
+        $this->contextBuilder = $contextBuilder;
+        $this->logger = $logger;
     }
 
     public function onKernelException(GetResponseForExceptionEvent $event)
@@ -32,26 +41,42 @@ final class ExceptionListener
 
         // Get exception and serialize.
         $exception = $event->getException();
-
         $responseHeaders = $this->api->getResponseHeaders($request);
-        $mimeType = $this->api->getContentTypeMatch($request)->getType();
+
+        if (null !== $this->logger) {
+            $this->logger->info('API: Exception listener serializing exception', ['exception' => $exception]);
+        }
 
         // Try using our serializer to format our message.
         $response = null;
         try {
-            $content = $this->api->getSerializer()->serialize(
-                $exception,
-                $this->api->getFormatForMimeType($mimeType)
+            $mimeType = $this->api->getContentTypeMatch($request)->getType();
+
+            $status = self::getStatusCodeFromException($exception);
+            $format = $this->api->getFormatForMimeType($mimeType);
+            $context = array_merge_recursive(
+                $this->api->serializerDefaultContext(),
+                $this->contextBuilder->getContext()
             );
 
+            $normalized = ['status' => $status] + $this->serializer->normalize($exception, $format, $context);
+            $serialized = $this->serializer->serialize(['error' => $normalized], $format, $context);
+
             $response = new Response(
-                $content,
-                self::getStatusCodeFromException($exception),
+                $serialized,
+                $status,
                 $responseHeaders
             );
         } catch (Exception $e) {
             // If we had an error trying to serialize just print out a string (since we can't use our serializer).
             $responseHeaders['content-type'] = 'text/plain';
+
+            if (null !== $this->logger) {
+                $this->logger->error('API: Exception listener serialization failed.', [
+                    'exception' => $e,
+                    'target' => $exception,
+                ]);
+            }
 
             $response = new Response(
                 (string) $exception,

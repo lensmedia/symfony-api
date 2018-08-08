@@ -31,15 +31,28 @@ final class ViewListener
             return;
         }
 
+        $controllerResult = $event->getControllerResult();
+        if ($controllerResult instanceof Response) {
+            $event->setResponse($controllerResult);
+
+            return;
+        }
+
         $contentType = $this->api->getContentTypeMatch($request)->getType();
-        $serializedContent = $this->api->getSerializer()->serialize(
-            $event->getControllerResult(),
-            $this->api->getFormatForMimeType($contentType),
+        $context = array_merge_recursive(
+            $this->api->serializerDefaultContext(),
             $this->contextBuilder->getContext()
         );
+
         $headers = $this->api->getResponseHeaders($request);
 
-        $response = new Response($serializedContent, Response::HTTP_OK, $headers);
+        $content = $this->api->getSerializer()->serialize(
+            $controllerResult,
+            $this->api->getFormatForMimeType($contentType),
+            $context
+        );
+
+        $response = new Response($content, Response::HTTP_OK, $headers);
 
         $event->setResponse($response);
     }

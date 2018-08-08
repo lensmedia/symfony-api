@@ -23,6 +23,6 @@ class LensApiExtension extends Extension
         $api = $container
             ->getDefinition(Api::class)
             ->replaceArgument(0, $config)
-            ->replaceArgument(1, new Reference($config['serializer']));
+            ->replaceArgument(1, new Reference($config['serializer']['id']));
     }
 }

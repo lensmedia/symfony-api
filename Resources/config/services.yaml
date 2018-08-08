@@ -9,11 +9,11 @@ services:
 
     Lens\Bundle\ApiBundle\EventListener\ContentNegotiationListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: 9999 }
+            - { name: kernel.event_listener, event: kernel.request, priority: 9989 }
 
     Lens\Bundle\ApiBundle\EventListener\OptionsRequestListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: 9989 }
+            - { name: kernel.event_listener, event: kernel.request, priority: 9999 }
 
     Lens\Bundle\ApiBundle\EventListener\ViewListener:
         tags:
@@ -23,9 +23,11 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.exception, priority: 9999 }
 
-    Lens\Bundle\ApiBundle\Serializer\Normalizer\ExceptionNormalizer: ~
+    Lens\Bundle\ApiBundle\Serializer\Normalizer\ExceptionNormalizer:
+        tags:
+            - { name: serializer.normalizer }
 
     Lens\Bundle\ApiBundle\Utils\ContextBuilder:
-        arguments: ['@request_stack', '@security.token_storage']
+        arguments: ['%kernel.debug%', '@request_stack', '@security.token_storage']
 
     Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface: '@Lens\Bundle\ApiBundle\Utils\ContextBuilder'

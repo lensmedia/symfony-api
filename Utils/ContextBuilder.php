@@ -9,14 +9,40 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Role\Role;
 
+/**
+ * Builds up groups context based on api context name (annotation) or route name/ method name and user roles.
+ *
+ * Example case:
+ * Using:
+ *     Annotation: @Api\Context("assortments")
+ *     Method: index
+ *     Roles on user: ROLE_USER & ROLE_ADMIN
+ *
+ * 0 => "assortments"
+ * 1 => "index"
+ * 2 => "assortments_index"
+ * 3 => "user"
+ * 4 => "assortments_user"
+ * 5 => "index_user"
+ * 6 => "assortments_index_user"
+ * 7 => "admin"
+ * 8 => "assortments_admin"
+ * 9 => "index_admin"
+ * 10 => "assortments_index_admin"
+ *
+ * These can then be used by our serialization groups annotation.
+ * *note* the exponential increase for each role available to the user. If a user has to many roles this gets real bad.
+ */
 class ContextBuilder implements ContextBuilderInterface
 {
     private $request;
     private $tokenStorage;
     private $reader;
+    private $debug;
 
-    public function __construct(RequestStack $requestStack, TokenStorageInterface $tokenStorage, Reader $reader)
+    public function __construct(bool $debug, RequestStack $requestStack, TokenStorageInterface $tokenStorage, Reader $reader)
     {
+        $this->debug = $debug;
         $this->request = $requestStack->getCurrentRequest();
         $this->tokenStorage = $tokenStorage;
         $this->reader = $reader;
@@ -24,16 +50,19 @@ class ContextBuilder implements ContextBuilderInterface
 
     public function getContext(array $defaultContext = []): array
     {
-        return array_merge_recursive($defaultContext, $this->generateGroupsContext());
+        $context = array_merge_recursive($defaultContext, $this->generateGroupsContext());
+
+        return $context;
     }
 
     private function generateGroupsContext(): array
     {
         $groups = $this->generateGroupsFromAnnotations();
-        $groups = $this->mergeGroupContext($this->generateRoleGroups(), $groups);
+        $groups = $this->mergeGroupContext($groups, $this->generateRoleGroups());
 
         return [
-            'groups' => $this->generateGroupsFromAnnotations(),
+            'debug' => $this->debug,
+            'groups' => $groups,
         ];
     }
 
@@ -56,7 +85,12 @@ class ContextBuilder implements ContextBuilderInterface
     {
         $groups = [];
 
-        list($controller, $method) = preg_split('~::~', $this->request->get('_controller'));
+        $controller = $this->request->get('_controller');
+        if (!$controller) {
+            return $groups;
+        }
+
+        list($controller, $method) = preg_split('~::~', $controller);
 
         $classContext = $this->request->get('_route');
         $methodContext = $method;
@@ -103,7 +137,7 @@ class ContextBuilder implements ContextBuilderInterface
         }
 
         $token = $this->tokenStorage->getToken();
-        if (null == $token) {
+        if (null === $token) {
             return [];
         }
 

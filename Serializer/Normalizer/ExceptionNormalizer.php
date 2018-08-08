@@ -2,44 +2,44 @@
 
 namespace Lens\Bundle\ApiBundle\Serializer\Normalizer;
 
-use Lens\Bundle\ApiBundle\Utils\Api;
-use Lens\Bundle\SerializerBundle\Serializer\Normalizer\NormalizerInterface;
+use Exception;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\SerializerAwareInterface;
+use Symfony\Component\Serializer\SerializerAwareTrait;
 
 /**
  * Normalize thrown exceptions to an array.
  */
-class ExceptionNormalizer implements NormalizerInterface
+final class ExceptionNormalizer implements NormalizerInterface, SerializerAwareInterface
 {
-    private $api;
-
-    public function __construct(Api $api)
-    {
-        $this->api = $api;
-    }
+    use SerializerAwareTrait;
 
     /**
-     * Normalize our exception (code and message) and extra fields if in dev environment.
-     *
-     * @param Exception   $exception
-     * @param string|null $format
-     * @param array       $context
-     *
-     * @return array
+     * Normalize our exception (code and message) and extra fields if in debug.
      */
-    public function normalize($exception, string $format = null, array $context = [])
+    public function normalize($exception, $format = null, array $context = array())
     {
-        $data = [];
-        $data['code'] = $exception->getCode();
-        $data['message'] = $exception->getMessage();
+        $output = [];
 
-        if ($this->api->isDev()) {
-            $data['file'] = $exception->getFile();
-            $data['line'] = $exception->getLine();
-            $data['trace'] = $exception->getTrace();
-            $data['previous'] = $this->api->getSerializer()->normalize($exception->getPrevious(), $format, $context);
+        $output['code'] = $exception->getCode();
+        $output['message'] = empty($exception->getMessage()) ? null : $exception->getMessage();
+
+        if ($context['debug']) {
+            $output['file'] = $exception->getFile();
+            $output['line'] = $exception->getLine();
+            $output['trace'] = $exception->getTrace();
+
+            $previous = $exception->getPrevious();
+            if ($previous) {
+                $output['previous'] = $this->serializer->normalize(
+                    $previous,
+                    $format,
+                    $context
+                );
+            }
         }
 
-        return $data;
+        return $output;
     }
 
     /**
@@ -51,8 +51,8 @@ class ExceptionNormalizer implements NormalizerInterface
      *
      * @return bool
      */
-    public function supportsNormalization($data, string $format = null, array $context = []): bool
+    public function supportsNormalization($data, $format = null)
     {
-        return is_object($data) && $data instanceof \Exception;
+        return $data instanceof Exception;
     }
 }

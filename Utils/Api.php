@@ -38,6 +38,11 @@ final class Api
         $this->negotiator = new Negotiator();
     }
 
+    public function serializerDefaultContext()
+    {
+        return $this->options['serializer']['default_context'];
+    }
+
     /**
      * Content negotiation helper to get best match from request accept header.
      * This also defaults our api to the to application/json format if nothing else was set.
@@ -155,7 +160,7 @@ final class Api
             }
         }
 
-        return $this->entryPointCache[$requestHash];
+        return isset($this->entryPointCache[$requestHash]) ? $this->entryPointCache[$requestHash] : null;
     }
 
     /**
