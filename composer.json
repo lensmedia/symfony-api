@@ -1,0 +1,16 @@
+{
+    "name": "lensmedia/api-bundle",
+    "description": "Custom API Bundle for some of our endpoints.",
+    "type": "symfony-bundle",
+    "require": {
+        "php": "^7.1.3",
+        "symfony/symfony": "^4",
+        "symfony/serializer-pack": "*"
+    },
+    "authors": [
+        {
+            "name": "Jenne van der Meer",
+            "email": "j.vandermeer@lensmedia.nl"
+        }
+    ]
+}
