@@ -1,5 +1,5 @@
 {
-    "name": "lensmedia/api-bundle",
+    "name": "lensmedia/symfony-api",
     "type": "symfony-bundle",
     "description": "Custom API Bundle for some of our endpoints.",
     "authors": [
