@@ -13,8 +13,6 @@
         "symfony/serializer-pack": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Lens\\Bundle\\ApiBundle\\": "./"
-        }
+        "psr-4": { "Lens\\Bundle\\ApiBundle\\": "" }
     }
 }
