@@ -44,7 +44,9 @@ final class ExceptionListener
         $responseHeaders = $this->api->getResponseHeaders($request);
 
         if (null !== $this->logger) {
-            $this->logger->info('API: Exception listener serializing exception', ['exception' => $exception]);
+            $this->logger->info('API: Exception listener serializing exception', [
+                'exception' => $exception,
+            ]);
         }
 
         // Try using our serializer to format our message.

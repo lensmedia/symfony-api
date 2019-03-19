@@ -60,6 +60,8 @@ class ContextBuilder implements ContextBuilderInterface
         $groups = $this->generateGroupsFromAnnotations();
         $groups = $this->mergeGroupContext($groups, $this->generateRoleGroups());
 
+        $groups[] = 'default';
+
         return [
             'debug' => $this->debug,
             'groups' => $groups,

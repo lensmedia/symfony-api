@@ -34,8 +34,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('lens_api');
+        $treeBuilder = new TreeBuilder('lens_api');
+        $rootNode = $treeBuilder->getRootNode();
 
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
@@ -53,8 +53,8 @@ class Configuration implements ConfigurationInterface
 
     private function addSerializerNode()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('serializer');
+        $treeBuilder = new TreeBuilder('serializer');
+        $node = $treeBuilder->getRootNode();
 
         $node
             ->children()
@@ -69,15 +69,17 @@ class Configuration implements ConfigurationInterface
 
     private function addFormatNode()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('formats');
+        $treeBuilder = new TreeBuilder('formats');
+        $node = $treeBuilder->getRootNode();
 
         $node
             ->useAttributeAsKey('name')
             ->arrayPrototype()
                 ->beforeNormalization()
                     ->ifString()
-                    ->then(function ($v) { return ['mime-types' => $v]; })
+                    ->then(function ($v) {
+                        return ['mime-types' => $v];
+                    })
                 ->end()
                 ->scalarPrototype()->end()
             ->end();
@@ -87,8 +89,8 @@ class Configuration implements ConfigurationInterface
 
     private function addEntryPointNode()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('entry_points');
+        $treeBuilder = new TreeBuilder('entry_points');
+        $node = $treeBuilder->getRootNode();
 
         $node
             ->useAttributeAsKey('name')
@@ -97,14 +99,18 @@ class Configuration implements ConfigurationInterface
                     ->arrayNode('path')
                         ->beforeNormalization()
                             ->ifString()
-                            ->then(function ($v) { return [$v]; })
+                            ->then(function ($v) {
+                                return [$v];
+                            })
                         ->end()
                         ->scalarPrototype()->end()
                     ->end()
                     ->arrayNode('host')
                         ->beforeNormalization()
                             ->ifString()
-                            ->then(function ($v) { return [$v]; })
+                            ->then(function ($v) {
+                                return [$v];
+                            })
                         ->end()
                         ->scalarPrototype()->end()
                     ->end()
@@ -117,8 +123,8 @@ class Configuration implements ConfigurationInterface
 
     private function addAccessControlNode()
     {
-        $treeBuilder = new TreeBuilder();
-        $node = $treeBuilder->root('access_control');
+        $treeBuilder = new TreeBuilder('access_control');
+        $node = $treeBuilder->getRootNode();
 
         $node
             ->addDefaultsIfNotSet()

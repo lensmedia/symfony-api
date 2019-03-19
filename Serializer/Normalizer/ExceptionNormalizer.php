@@ -22,12 +22,13 @@ final class ExceptionNormalizer implements NormalizerInterface, SerializerAwareI
         $output = [];
 
         $output['code'] = $exception->getCode();
+        $output['type'] = get_class($exception);
         $output['message'] = empty($exception->getMessage()) ? null : $exception->getMessage();
 
         if ($context['debug']) {
             $output['file'] = $exception->getFile();
             $output['line'] = $exception->getLine();
-            $output['trace'] = $exception->getTrace();
+            $output['trace'] = $exception->getTraceAsString();
 
             $previous = $exception->getPrevious();
             if ($previous) {

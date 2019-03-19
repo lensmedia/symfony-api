@@ -7,6 +7,15 @@ services:
     Lens\Bundle\ApiBundle\Utils\Api:
         arguments: [ [], null, '%kernel.debug%'] # 0 and 1 to be replaced by bundle extension class
 
+    Lens\Bundle\ApiBundle\Serializer\CircularReferenceHandler: ~
+
+    Lens\Bundle\ApiBundle\Utils\ContextBuilder:
+        arguments: ['%kernel.debug%', '@request_stack', '@security.token_storage']
+
+    # Alias
+    Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface: '@Lens\Bundle\ApiBundle\Utils\ContextBuilder'
+
+    # Listeners
     Lens\Bundle\ApiBundle\EventListener\ContentNegotiationListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 9989 }
@@ -26,8 +35,3 @@ services:
     Lens\Bundle\ApiBundle\Serializer\Normalizer\ExceptionNormalizer:
         tags:
             - { name: serializer.normalizer }
-
-    Lens\Bundle\ApiBundle\Utils\ContextBuilder:
-        arguments: ['%kernel.debug%', '@request_stack', '@security.token_storage']
-
-    Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface: '@Lens\Bundle\ApiBundle\Utils\ContextBuilder'
