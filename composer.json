@@ -1,15 +1,20 @@
 {
     "name": "lensmedia/api-bundle",
-    "description": "Custom API Bundle for some of our endpoints.",
     "type": "symfony-bundle",
-    "require": {
-        "php": "^7.1",
-        "symfony/serializer-pack": "*"
-    },
+    "description": "Custom API Bundle for some of our endpoints.",
     "authors": [
         {
             "name": "Jenne van der Meer",
             "email": "j.vandermeer@lensmedia.nl"
         }
-    ]
+    ],
+    "require": {
+        "php": "^7.1",
+        "symfony/serializer-pack": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Lens\\Bundle\\ApiBundle\\": "./"
+        }
+    }
 }
