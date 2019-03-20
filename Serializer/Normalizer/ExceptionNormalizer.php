@@ -10,19 +10,15 @@ use Symfony\Component\Serializer\SerializerAwareTrait;
 /**
  * Normalize thrown exceptions to an array.
  */
-final class ExceptionNormalizer implements NormalizerInterface, SerializerAwareInterface
+class ExceptionNormalizer implements NormalizerInterface, SerializerAwareInterface
 {
     use SerializerAwareTrait;
 
-    /**
-     * Normalize our exception (code and message) and extra fields if in debug.
-     */
-    public function normalize($exception, $format = null, array $context = array())
+    public function normalize($exception, $format = null, array $context = [])
     {
         $output = [];
 
         $output['code'] = $exception->getCode();
-        $output['type'] = get_class($exception);
         $output['message'] = empty($exception->getMessage()) ? null : $exception->getMessage();
 
         if ($context['debug']) {
@@ -43,15 +39,6 @@ final class ExceptionNormalizer implements NormalizerInterface, SerializerAwareI
         return $output;
     }
 
-    /**
-     * Check if supplied data is an Exception.
-     *
-     * @param mixed       $data
-     * @param string|null $format
-     * @param array       $context
-     *
-     * @return bool
-     */
     public function supportsNormalization($data, $format = null)
     {
         return $data instanceof Exception;
