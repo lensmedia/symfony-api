@@ -31,11 +31,13 @@ final class ViewListener
             return;
         }
 
-        $controllerResult = $event->getControllerResult();
-        if ($controllerResult instanceof Response) {
-            $event->setResponse($controllerResult);
+        $headers = $this->api->getResponseHeaders($request);
 
-            return;
+        $controllerResult = $event->getControllerResult();
+        if (null === $controllerResult) {
+            $response = new Response(null, Response::HTTP_NO_CONTENT, $headers);
+
+            return $event->setResponse($response);
         }
 
         $contentType = $this->api->getContentTypeMatch($request)->getType();
@@ -43,8 +45,6 @@ final class ViewListener
             $this->api->serializerDefaultContext(),
             $this->contextBuilder->getContext()
         );
-
-        $headers = $this->api->getResponseHeaders($request);
 
         $content = $this->api->getSerializer()->serialize(
             $controllerResult,
