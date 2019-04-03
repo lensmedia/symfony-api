@@ -214,6 +214,10 @@ final class Api
                 $data['Access-Control-Allow-Origin'] = implode(', ', $entry['access_control']['allow']['origin']);
             }
 
+            if ($entry['access_control']['allow']['credentials']) {
+                $data['Access-Control-Allow-Credentials'] = 'true'; // yes this is a string on purpose.
+            }
+
             if (!empty($entry['access_control']['allow']['methods'])) {
                 $data['Access-Control-Allow-Methods'] = implode(', ', $entry['access_control']['allow']['methods']);
             }

@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
         'access_control' => [
             'allow' => [
                 'origin' => ['*'],
+                'credentials' => true,
                 'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
                 'headers' => ['content-type', 'origin', 'authorization', 'accept'],
             ],
@@ -143,6 +144,9 @@ class Configuration implements ConfigurationInterface
                             ->end()
                             ->scalarPrototype()->end()
                             ->defaultValue(self::DEFAULTS['access_control']['allow']['origin'])
+                        ->end()
+                        ->booleanNode('credentials')
+                            ->defaultValue(self::DEFAULTS['access_control']['allow']['credentials'])
                         ->end()
                         ->arrayNode('methods')
                             ->beforeNormalization()
