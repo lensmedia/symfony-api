@@ -121,7 +121,7 @@ class ContextBuilder implements ContextBuilderInterface
     private function generateRoleGroups(): array
     {
         $roles = [];
-        foreach ($this->getRoles() as $role) {
+        foreach ($this->getRoleNames() as $role) {
             if ($role instanceof Role) {
                 $role = $role->getRole();
             }
@@ -132,7 +132,7 @@ class ContextBuilder implements ContextBuilderInterface
         return $roles;
     }
 
-    private function getRoles(): array
+    private function getRoleNames(): array
     {
         if (!$this->tokenStorage) {
             return [];
@@ -143,6 +143,6 @@ class ContextBuilder implements ContextBuilderInterface
             return [];
         }
 
-        return $token->getRoles();
+        return $token->getRoleNames();
     }
 }
