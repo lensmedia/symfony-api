@@ -31,13 +31,6 @@ final class ViewListener
             return;
         }
 
-        // Get our content negotiation match.
-        $match = $this->api->getContentTypeMatch($request);
-        if (null !== $match) {
-            $format = $this->api->getFormatForMimeType($match->getType());
-            $request->setRequestFormat($format);
-        }
-
         $headers = $this->api->getResponseHeaders($request);
 
         $controllerResult = $event->getControllerResult();
