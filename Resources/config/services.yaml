@@ -16,6 +16,10 @@ services:
     Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface: '@Lens\Bundle\ApiBundle\Utils\ContextBuilder'
 
     # Listeners
+    Lens\Bundle\ApiBundle\EventListener\ContentNegotiationListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 9989 }
+
     Lens\Bundle\ApiBundle\EventListener\OptionsRequestListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 9999 }
