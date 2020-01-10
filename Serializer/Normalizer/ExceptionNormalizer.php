@@ -21,7 +21,7 @@ class ExceptionNormalizer implements NormalizerInterface, SerializerAwareInterfa
         $output['code'] = $exception->getCode();
         $output['message'] = empty($exception->getMessage()) ? null : $exception->getMessage();
 
-        if ($context['debug']) {
+        if (isset($context['debug']) && $context['debug']) {
             $output['file'] = $exception->getFile();
             $output['line'] = $exception->getLine();
             $output['trace'] = $exception->getTraceAsString();

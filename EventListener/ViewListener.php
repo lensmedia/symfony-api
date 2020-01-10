@@ -89,7 +89,7 @@ final class ViewListener
         $section = array_shift($events);
 
         $totalDuration = $section->getDuration();
-        if ($totalDuration >= 10) {
+        if ($totalDuration >= 500) {
             $events = implode(', ', array_map(function ($event) use ($events) {
                 return sprintf(
                     '%s: %.2F MiB - %d ms',
