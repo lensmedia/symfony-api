@@ -5,7 +5,7 @@ namespace Lens\Bundle\ApiBundle\EventListener;
 use Lens\Bundle\ApiBundle\Utils\Api;
 use Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
 
 /**
  * Our view listener intercepts any return from controllers that are not instances/inherited of a Response class.
@@ -23,7 +23,7 @@ final class ViewListener
         $this->contextBuilder = $contextBuilder;
     }
 
-    public function onKernelView(GetResponseForControllerResultEvent $event)
+    public function onKernelView(ViewEvent $event)
     {
         $request = $event->getRequest();
         if (!$this->api->isApiRequest($request)) {

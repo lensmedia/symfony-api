@@ -3,7 +3,7 @@
 namespace Lens\Bundle\ApiBundle\EventListener;
 
 use Lens\Bundle\ApiBundle\Utils\Api;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
  * Set symfonys internal request format by doing content negotiation.
@@ -17,7 +17,7 @@ final class ContentNegotiationListener
         $this->api = $api;
     }
 
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(RequestEvent $event)
     {
         // Abort if our request is not an api request (set by hosts/paths in our config).
         $request = $event->getRequest();

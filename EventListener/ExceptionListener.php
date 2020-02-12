@@ -7,7 +7,7 @@ use Lens\Bundle\ApiBundle\Utils\Api;
 use Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -30,7 +30,7 @@ final class ExceptionListener
         $this->logger = $logger;
     }
 
-    public function onKernelException(GetResponseForExceptionEvent $event)
+    public function onKernelException(ExceptionEvent $event)
     {
         // Abort if our request is not an api request (set by hosts/paths in our config).
         $request = $event->getRequest();
