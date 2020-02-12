@@ -21,7 +21,6 @@ final class ExceptionListener
     private $api;
     private $contextBuilder;
     private $serializer;
-    private $logger;
 
     public function __construct(Api $api = null, SerializerInterface $serializer, ContextBuilderInterface $contextBuilder, LoggerInterface $logger)
     {
@@ -44,7 +43,7 @@ final class ExceptionListener
         $responseHeaders = $this->api->getResponseHeaders($request);
 
         if (null !== $this->logger) {
-            $this->logger->info('API: Exception listener serializing exception', [
+            $this->logger->error('API: Exception listener serializing exception', [
                 'exception' => $exception,
             ]);
         }
