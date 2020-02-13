@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Serializer\SerializerInterface;
+use Throwable;
 
 final class ErrorListener
 {
@@ -95,7 +96,7 @@ final class ErrorListener
      * Some built in errors don't have any associated status
      * code or implement it differently.
      */
-    private static function getStatusCodeFromError(Error $error = null)
+    private static function getStatusCodeFromError(Throwable $error = null)
     {
         if (null === $error) {
             return 500;
