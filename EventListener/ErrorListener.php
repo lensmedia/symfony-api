@@ -2,6 +2,7 @@
 
 namespace Lens\Bundle\ApiBundle\EventListener;
 
+use Error;
 use Lens\Bundle\ApiBundle\Utils\Api;
 use Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface;
 use Psr\Log\LoggerInterface;
@@ -11,12 +12,11 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Serializer\SerializerInterface;
-use Throwable;
 
 /**
  * Our exception handler (for catching errors within our api sections).
  */
-final class ExceptionListener
+final class ErrorListener
 {
     private $api;
     private $contextBuilder;
@@ -39,12 +39,12 @@ final class ExceptionListener
         }
 
         // Get exception and serialize.
-        $exception = $event->getThrowable();
+        $error = $event->getThrowable();
         $responseHeaders = $this->api->getResponseHeaders($request);
 
         if (null !== $this->logger) {
             $this->logger->error('API: Exception listener serializing exception', [
-                'exception' => $exception,
+                'exception' => $error,
             ]);
         }
 
@@ -53,14 +53,14 @@ final class ExceptionListener
         try {
             $mimeType = $this->api->getContentTypeMatch($request)->getType();
 
-            $status = self::getStatusCodeFromException($exception);
+            $status = self::getStatusCodeFromException($error);
             $format = $this->api->getFormatForMimeType($mimeType);
             $context = array_merge_recursive(
                 $this->api->serializerDefaultContext(),
                 $this->contextBuilder->getContext()
             );
 
-            $normalized = ['status' => $status] + $this->serializer->normalize($exception, $format, $context);
+            $normalized = ['status' => $status] + $this->serializer->normalize($error, $format, $context);
             $serialized = $this->serializer->serialize(['error' => $normalized], $format, $context);
 
             $response = new Response(
@@ -68,14 +68,14 @@ final class ExceptionListener
                 $status,
                 $responseHeaders
             );
-        } catch (Exception $e) {
+        } catch (Error $e) {
             // If we had an error trying to serialize just print out a string (since we can't use our serializer).
             $responseHeaders['content-type'] = 'text/plain';
 
             if (null !== $this->logger) {
                 $this->logger->error('API: Exception listener serialization failed.', [
-                    'exception' => $e,
-                    'target' => $exception,
+                    'error' => $e,
+                    'target' => $error,
                 ]);
             }
 
@@ -96,17 +96,17 @@ final class ExceptionListener
      *
      * @return int
      */
-    private static function getStatusCodeFromException(Throwable $exception = null)
+    private static function getStatusCodeFromException(Error $error = null)
     {
-        if (null === $exception) {
+        if (null === $error) {
             return 500;
         }
 
-        if ($exception instanceof HttpExceptionInterface) {
-            return $exception->getStatusCode();
-        } elseif ($exception instanceof AccessDeniedException) {
-            return $exception->getCode();
-        } elseif ($exception instanceof AuthenticationException) {
+        if ($error instanceof HttpExceptionInterface) {
+            return $error->getStatusCode();
+        } elseif ($error instanceof AccessDeniedException) {
+            return $error->getCode();
+        } elseif ($error instanceof AuthenticationException) {
             return Response::HTTP_UNAUTHORIZED;
         }
 

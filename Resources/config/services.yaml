@@ -28,10 +28,10 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.view, priority: 9999 }
 
-    Lens\Bundle\ApiBundle\EventListener\ExceptionListener:
+    Lens\Bundle\ApiBundle\EventListener\ErrorListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception, priority: 9999 }
 
-    Lens\Bundle\ApiBundle\Serializer\Normalizer\ExceptionNormalizer:
+    Lens\Bundle\ApiBundle\Serializer\Normalizer\ErrorNormalizer:
         tags:
             - { name: serializer.normalizer }
