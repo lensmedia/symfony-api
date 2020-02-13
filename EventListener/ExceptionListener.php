@@ -39,7 +39,7 @@ final class ExceptionListener
         }
 
         // Get exception and serialize.
-        $exception = $event->getException();
+        $exception = $event->getThrowable();
         $responseHeaders = $this->api->getResponseHeaders($request);
 
         if (null !== $this->logger) {
