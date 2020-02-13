@@ -2,7 +2,6 @@
 
 namespace Lens\Bundle\ApiBundle\EventListener;
 
-use Exception;
 use Lens\Bundle\ApiBundle\Utils\Api;
 use Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface;
 use Psr\Log\LoggerInterface;
@@ -12,6 +11,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Serializer\SerializerInterface;
+use Throwable;
 
 /**
  * Our exception handler (for catching errors within our api sections).
@@ -96,7 +96,7 @@ final class ExceptionListener
      *
      * @return int
      */
-    private static function getStatusCodeFromException(Exception $exception = null)
+    private static function getStatusCodeFromException(Throwable $exception = null)
     {
         if (null === $exception) {
             return 500;
