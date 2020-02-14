@@ -2,10 +2,10 @@
 
 namespace Lens\Bundle\ApiBundle\Serializer\Normalizer;
 
-use Error;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
+use Throwable;
 
 /**
  * Normalize thrown errors to an array.
@@ -43,6 +43,6 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
 
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof Error;
+        return $data instanceof Throwable;
     }
 }
