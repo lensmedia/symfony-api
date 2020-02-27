@@ -44,12 +44,6 @@ final class ErrorListener
         $error = $event->getThrowable();
         $responseHeaders = $this->api->getResponseHeaders($request);
 
-        if (null !== $this->logger) {
-            $this->logger->error('API: Error listener serializing error', [
-                'error' => $error,
-            ]);
-        }
-
         // Try using our serializer to format our message.
         $response = null;
         try {
@@ -64,6 +58,12 @@ final class ErrorListener
 
             $normalized = ['status' => $status] + $this->serializer->normalize($error, $format, $context);
             $serialized = $this->serializer->serialize(['error' => $normalized], $format, $context);
+
+            if (null !== $this->logger) {
+                $this->logger->debug('API: Serialized error', [
+                    'error' => $error,
+                ]);
+            }
 
             $response = new Response(
                 $serialized,
