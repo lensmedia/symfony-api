@@ -47,8 +47,6 @@ final class Api
      * Content negotiation helper to get best match from request accept header.
      * This also defaults our api to the to application/json format if nothing else was set.
      *
-     * @param Request $request
-     *
      * @return Accept
      */
     public function getContentTypeMatch(Request $request)
@@ -93,10 +91,6 @@ final class Api
 
     /**
      * Get a serialization format for a specific mimetype.
-     *
-     * @param string $mime
-     *
-     * @return string
      */
     public function getFormatForMimeType(string $mime): string
     {
@@ -109,10 +103,6 @@ final class Api
 
     /**
      * Returns true if the request is an api request (based on configured paths/ hosts).
-     *
-     * @param Request $request
-     *
-     * @return bool
      */
     public function isApiRequest(Request $request): bool
     {
@@ -121,10 +111,6 @@ final class Api
 
     /**
      * Get the first matching configured entry point from our request.
-     *
-     * @param Request $request
-     *
-     * @return array|null
      */
     public function getEntryPoint(Request $request): ?array
     {
@@ -165,8 +151,6 @@ final class Api
 
     /**
      * Are we in development environment.
-     *
-     * @return bool
      */
     public function isDev(): bool
     {
@@ -195,16 +179,15 @@ final class Api
     /**
      * Generate response headers based on our entry point settings.
      *
-     * @param Request $request
-     *
      * @return
      */
     public function getResponseHeaders(Request $request): array
     {
-        $data = [];
-
         // Add content type from our current request format.
-        $data['Content-Type'] = $this->getContentTypeMatch($request)->getType();
+        $contentType = $this->getContentTypeMatch($request);
+        if ($contentType) {
+            $data['Content-Type'] = $contentType->getType();
+        }
 
         // Add our entry point data..
         $entry = $this->getEntryPoint($request);
