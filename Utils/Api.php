@@ -51,7 +51,9 @@ final class Api
      */
     public function getContentTypeMatch(Request $request)
     {
-        $accept = $request->headers->has('accept') ? $request->headers->get('accept') : $this->options['accept'];
+        $accept = $request->headers->has('accept')
+            ? $request->headers->get('accept')
+            : $this->options['accept'];
 
         return $this->negotiator->getBest(
             $accept,
@@ -199,6 +201,6 @@ final class Api
         // Add our entry point data..
         $entry = $this->getEntryPoint($request);
 
-        return array_merge($defaults, $entry['headers']);
+        return array_merge($defaults, $this->options['headers'], $entry['headers']);
     }
 }

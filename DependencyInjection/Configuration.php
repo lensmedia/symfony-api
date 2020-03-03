@@ -28,6 +28,12 @@ class Configuration implements ConfigurationInterface
                 ->append($this->addSerializerNode())
                 ->scalarNode('accept')->defaultValue('application/json')->end()
                 ->append($this->addFormatNode())
+                // Common headers.
+                ->arrayNode('headers')
+                    ->normalizeKeys(false)
+                    ->treatNullLike([])
+                    ->scalarPrototype()->end()
+                ->end()
                 ->append($this->addEntryPointNode())
             ->end();
 
@@ -99,6 +105,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->arrayNode('headers')
                         ->normalizeKeys(false)
+                        ->treatNullLike([])
                         ->scalarPrototype()->end()
                     ->end()
                 ->end()
