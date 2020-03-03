@@ -183,33 +183,22 @@ final class Api
      */
     public function getResponseHeaders(Request $request): array
     {
+        $defaults = [
+            'access-control-allow-origin' => '*',
+            'access-control-allow-credentials' => true,
+            'access-control-allow-methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+            'access-control-allow-headers' => 'content-type, authorization, accept, origin',
+        ];
+
         // Add content type from our current request format.
         $contentType = $this->getContentTypeMatch($request);
         if ($contentType) {
-            $data['Content-Type'] = $contentType->getType();
+            $defaults['content-type'] = $contentType->getType();
         }
 
         // Add our entry point data..
         $entry = $this->getEntryPoint($request);
 
-        if ($entry) {
-            if (!empty($entry['access_control']['allow']['origin'])) {
-                $data['Access-Control-Allow-Origin'] = implode(', ', $entry['access_control']['allow']['origin']);
-            }
-
-            if ($entry['access_control']['allow']['credentials']) {
-                $data['Access-Control-Allow-Credentials'] = 'true'; // yes this is a string on purpose.
-            }
-
-            if (!empty($entry['access_control']['allow']['methods'])) {
-                $data['Access-Control-Allow-Methods'] = implode(', ', $entry['access_control']['allow']['methods']);
-            }
-
-            if (!empty($entry['access_control']['allow']['headers'])) {
-                $data['Access-Control-Allow-Headers'] = implode(', ', $entry['access_control']['allow']['headers']);
-            }
-        }
-
-        return $data;
+        return array_merge($defaults, $entry['headers']);
     }
 }

@@ -12,24 +12,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
-    const DEFAULTS = [
-        'serializer' => [
-            'id' => 'serializer',
-            'default_context' => [],
-        ],
-        'accept' => 'application/json',
-
-        // access control is a sub section of each entry point
-        'access_control' => [
-            'allow' => [
-                'origin' => ['*'],
-                'credentials' => true,
-                'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-                'headers' => ['content-type', 'origin', 'authorization', 'accept'],
-            ],
-        ],
-    ];
-
     /**
      * {@inheritdoc}
      */
@@ -44,7 +26,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->append($this->addSerializerNode())
-                ->scalarNode('accept')->defaultValue(self::DEFAULTS['accept'])->end()
+                ->scalarNode('accept')->defaultValue('application/json')->end()
                 ->append($this->addFormatNode())
                 ->append($this->addEntryPointNode())
             ->end();
@@ -59,7 +41,7 @@ class Configuration implements ConfigurationInterface
 
         $node
             ->children()
-                ->scalarNode('id')->defaultValue(self::DEFAULTS['serializer']['id'])->end()
+                ->scalarNode('id')->defaultValue('serializer')->end()
                 ->arrayNode('default_context')
                     ->scalarPrototype()->end()
                 ->end()
@@ -115,63 +97,9 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->scalarPrototype()->end()
                     ->end()
-                    ->append($this->addAccessControlNode())
-                ->end()
-            ->end();
-
-        return $node;
-    }
-
-    private function addAccessControlNode()
-    {
-        $treeBuilder = new TreeBuilder('access_control');
-        $node = $treeBuilder->getRootNode();
-
-        $node
-            ->addDefaultsIfNotSet()
-            ->children()
-                ->arrayNode('allow')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->arrayNode('origin')
-                            ->beforeNormalization()
-                                ->ifString()
-                                ->then(function ($v) {
-                                    return array_map(function ($j) {
-                                        return trim($j);
-                                    }, preg_split('~\s*,\s*~', $v, -1, PREG_SPLIT_NO_EMPTY));
-                                })
-                            ->end()
-                            ->scalarPrototype()->end()
-                            ->defaultValue(self::DEFAULTS['access_control']['allow']['origin'])
-                        ->end()
-                        ->booleanNode('credentials')
-                            ->defaultValue(self::DEFAULTS['access_control']['allow']['credentials'])
-                        ->end()
-                        ->arrayNode('methods')
-                            ->beforeNormalization()
-                                ->ifString()
-                                ->then(function ($v) {
-                                    return array_map(function ($j) {
-                                        return trim($j);
-                                    }, preg_split('~\s*,\s*~', $v, -1, PREG_SPLIT_NO_EMPTY));
-                                })
-                            ->end()
-                            ->scalarPrototype()->end()
-                            ->defaultValue(self::DEFAULTS['access_control']['allow']['methods'])
-                        ->end()
-                        ->arrayNode('headers')
-                            ->beforeNormalization()
-                                ->ifString()
-                                ->then(function ($v) {
-                                    return array_map(function ($j) {
-                                        return trim($j);
-                                    }, preg_split('~\s*,\s*~', $v, -1, PREG_SPLIT_NO_EMPTY));
-                                })
-                            ->end()
-                            ->scalarPrototype()->end()
-                            ->defaultValue(self::DEFAULTS['access_control']['allow']['headers'])
-                        ->end()
+                    ->arrayNode('headers')
+                        ->normalizeKeys(false)
+                        ->scalarPrototype()->end()
                     ->end()
                 ->end()
             ->end();
