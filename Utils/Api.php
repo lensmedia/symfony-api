@@ -187,7 +187,7 @@ final class Api
     {
         $defaults = [
             'access-control-allow-origin' => '*',
-            'access-control-allow-credentials' => true,
+            'access-control-allow-credentials' => 'true',
             'access-control-allow-methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
             'access-control-allow-headers' => 'content-type, authorization, accept, origin',
         ];
