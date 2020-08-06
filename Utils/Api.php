@@ -55,10 +55,14 @@ final class Api
             ? $request->headers->get('accept')
             : $this->options['accept'];
 
-        return $this->negotiator->getBest(
+        $guess = $this->negotiator->getBest(
             $accept,
             array_keys($this->getSupportedMimeTypes())
         );
+
+        return ($guess
+            ? $guess->getType()
+            : null) ?? $this->options['accept'];
     }
 
     /**

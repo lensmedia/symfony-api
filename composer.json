@@ -16,6 +16,8 @@
         "willdurand/negotiation": "^2.3"
     },
     "autoload": {
-        "psr-4": { "Lens\\Bundle\\ApiBundle\\": "" }
+        "psr-4": {
+            "Lens\\Bundle\\ApiBundle\\": ""
+        }
     }
 }

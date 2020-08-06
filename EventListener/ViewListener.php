@@ -23,7 +23,7 @@ final class ViewListener
         $this->contextBuilder = $contextBuilder;
     }
 
-    public function onKernelView(ViewEvent $event)
+    public function onKernelView(ViewEvent $event): void
     {
         $request = $event->getRequest();
         if (!$this->api->isApiRequest($request)) {
@@ -35,7 +35,9 @@ final class ViewListener
         if (null === $controllerResult) {
             $response = new Response(null, Response::HTTP_NO_CONTENT, $headers);
 
-            return $event->setResponse($response);
+            $event->setResponse($response);
+
+            return;
         }
 
         $context = array_merge_recursive(
@@ -43,7 +45,7 @@ final class ViewListener
             $this->contextBuilder->getContext()
         );
 
-        $contentType = $this->api->getContentTypeMatch($request)->getType();
+        $contentType = $this->api->getContentTypeMatch($request);
 
         $content = $this->api->getSerializer()->serialize(
             $controllerResult,
