@@ -199,7 +199,7 @@ final class Api
         // Add content type from our current request format.
         $contentType = $this->getContentTypeMatch($request);
         if ($contentType) {
-            $defaults['content-type'] = $contentType->getType();
+            $defaults['content-type'] = $contentType;
         }
 
         // Add our entry point data..

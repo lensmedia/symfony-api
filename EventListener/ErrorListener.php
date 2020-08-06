@@ -47,7 +47,7 @@ final class ErrorListener
         // Try using our serializer to format our message.
         $response = null;
         try {
-            $mimeType = $this->api->getContentTypeMatch($request)->getType();
+            $mimeType = $this->api->getContentTypeMatch($request);
 
             $status = self::getStatusCodeFromError($error);
             $format = $this->api->getFormatForMimeType($mimeType);
