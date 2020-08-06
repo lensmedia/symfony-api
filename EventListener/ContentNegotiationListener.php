@@ -28,7 +28,7 @@ final class ContentNegotiationListener
         // Get our best match, if we have any set our request format.
         $match = $this->api->getContentTypeMatch($request);
         if (null !== $match) {
-            $format = $this->api->getFormatForMimeType($match->getType());
+            $format = $this->api->getFormatForMimeType($match);
             $request->setRequestFormat($format);
         }
     }
