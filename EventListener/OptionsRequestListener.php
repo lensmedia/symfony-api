@@ -2,18 +2,18 @@
 
 namespace Lens\Bundle\ApiBundle\EventListener;
 
-use Lens\Bundle\ApiBundle\Utils\Api;
+use Lens\Bundle\ApiBundle\Api;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 /**
- * Set symfonys internal request format by doing content negotiation.
+ * Set Symfony's internal request format by doing content negotiation.
  */
 final class OptionsRequestListener
 {
     private $api;
 
-    public function __construct(Api $api = null)
+    public function __construct(Api $api)
     {
         $this->api = $api;
     }

@@ -4,6 +4,7 @@ namespace Lens\Bundle\ApiBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * This is the class that validates and merges configuration from your app/config files.
@@ -47,7 +48,7 @@ class Configuration implements ConfigurationInterface
 
         $node
             ->children()
-                ->scalarNode('id')->defaultValue('serializer')->end()
+                ->scalarNode('id')->defaultValue(SerializerInterface::class)->end()
                 ->arrayNode('default_context')
                     ->scalarPrototype()->end()
                 ->end()

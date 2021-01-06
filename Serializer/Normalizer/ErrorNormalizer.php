@@ -14,7 +14,7 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
 {
     use SerializerAwareTrait;
 
-    public function normalize($error, $format = null, array $context = [])
+    public function normalize($error, string $format = null, array $context = [])
     {
         $output = [];
 
@@ -41,7 +41,7 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
         return $output;
     }
 
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, string $format = null)
     {
         return $data instanceof Throwable;
     }

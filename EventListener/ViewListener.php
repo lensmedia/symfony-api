@@ -2,8 +2,7 @@
 
 namespace Lens\Bundle\ApiBundle\EventListener;
 
-use Lens\Bundle\ApiBundle\Utils\Api;
-use Lens\Bundle\ApiBundle\Utils\ContextBuilderInterface;
+use Lens\Bundle\ApiBundle\Api;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 
@@ -15,12 +14,10 @@ use Symfony\Component\HttpKernel\Event\ViewEvent;
 final class ViewListener
 {
     private $api;
-    private $contextBuilder;
 
-    public function __construct(Api $api = null, ContextBuilderInterface $contextBuilder)
+    public function __construct(Api $api)
     {
         $this->api = $api;
-        $this->contextBuilder = $contextBuilder;
     }
 
     public function onKernelView(ViewEvent $event): void
@@ -31,29 +28,21 @@ final class ViewListener
         }
 
         $headers = $this->api->getResponseHeaders($request);
+
         $controllerResult = $event->getControllerResult();
+
         if (null === $controllerResult) {
             $response = new Response(null, Response::HTTP_NO_CONTENT, $headers);
-
             $event->setResponse($response);
-
             return;
         }
 
-        $context = array_merge_recursive(
-            $this->api->serializerDefaultContext(),
-            $this->contextBuilder->getContext()
+        $response = new Response(
+            $this->api->serialize($controllerResult),
+            Response::HTTP_OK,
+            $headers
         );
 
-        $contentType = $this->api->getContentTypeMatch($request);
-
-        $content = $this->api->getSerializer()->serialize(
-            $controllerResult,
-            $this->api->getFormatForMimeType($contentType),
-            $context
-        );
-
-        $response = new Response($content, Response::HTTP_OK, $headers);
         $event->setResponse($response);
     }
 }

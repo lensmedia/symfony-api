@@ -1,21 +1,26 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Utils;
+namespace Lens\Bundle\ApiBundle;
 
 use Negotiation\Accept;
 use Negotiation\Negotiator;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Api helper class with common function for internal use.
  */
-final class Api
+final class Api implements SerializerInterface, NormalizerInterface
 {
-    /** @var array yaml configured options */
-    private $options;
+    private RequestStack $requestStack;
+    private SerializerInterface $serializer;
+    private ContextBuilderInterface $contextBuilder;
 
-    /** @var Serializer serializer to be used */
-    private $serializer;
+    /** @var array configured options */
+    private $options;
 
     /** @var array An array with supported mime types (key) and their serializer format (value) */
     private $supportedMimeTypes;
@@ -26,43 +31,43 @@ final class Api
     /** @var array Caching array for isApiRequest (skip preg matches on extra calls) */
     private $entryPointCache = [];
 
-    /** @var bool are we in dev environment */
-    private $dev = false;
-
-    public function __construct(array $options, $serializer = null, bool $dev = false)
-    {
-        $this->options = $options;
+    public function __construct(
+        SerializerInterface $serializer,
+        RequestStack $requestStack,
+        ContextBuilder $contextBuilder,
+        array $options
+    ) {
+        $this->requestStack = $requestStack;
         $this->serializer = $serializer;
-        $this->dev = $dev;
+        $this->contextBuilder = $contextBuilder;
+
+        $this->options = $options;
 
         $this->negotiator = new Negotiator();
     }
 
-    public function serializerDefaultContext()
-    {
-        return $this->options['serializer']['default_context'];
-    }
-
     /**
      * Content negotiation helper to get best match from request accept header.
-     * This also defaults our api to the to application/json format if nothing else was set.
-     *
-     * @return Accept
+     * This also defaults our api to the to application/json format if nothing
+     * else was set.
      */
-    public function getContentTypeMatch(Request $request)
+    public function getContentTypeMatch(Request $request = null): string
     {
-        $accept = $request->headers->has('accept')
-            ? $request->headers->get('accept')
-            : $this->options['accept'];
+        if (null === $request) {
+            $request = $this->requestStack->getCurrentRequest();
+        }
 
-        $guess = $this->negotiator->getBest(
-            $accept,
+        if (null === $request) {
+            throw new RuntimeException('getContentTypeMatch can only be used within a request context or using a Request object argument.');
+        }
+
+        /** @var Accept $accept */
+        $accept = $this->negotiator->getBest(
+            $request->headers->get('accept', $this->options['accept']),
             array_keys($this->getSupportedMimeTypes())
         );
 
-        return ($guess
-            ? $guess->getType()
-            : null) ?? $this->options['accept'];
+        return ($accept ? $accept->getType() : null) ?? $this->options['accept'];
     }
 
     /**
@@ -78,7 +83,8 @@ final class Api
     /**
      * Get a list of configured mimetypes the api should respond to.
      *
-     * @return array array of mime types (key) and their serializer format (value)
+     * @return array array of mime types (key) and their serializer format
+     *               (value)
      */
     public function getSupportedMimeTypes(): array
     {
@@ -98,7 +104,7 @@ final class Api
     /**
      * Get a serialization format for a specific mimetype.
      */
-    public function getFormatForMimeType(string $mime): string
+    public function getFormatForMimeType(string $mime): ?string
     {
         if (isset($this->supportedMimeTypes[$mime])) {
             return $this->supportedMimeTypes[$mime];
@@ -108,7 +114,8 @@ final class Api
     }
 
     /**
-     * Returns true if the request is an api request (based on configured paths/ hosts).
+     * Returns true if the request is an api request (based on configured
+     * paths/ hosts).
      */
     public function isApiRequest(Request $request): bool
     {
@@ -128,8 +135,10 @@ final class Api
         if (!isset($this->entryPointCache[$requestHash])) {
             $found = false;
             foreach ($this->options['entry_points'] as $entry) {
-                $host = $this->checkApiRequest($request->getHost(), $entry['host']);
-                $path = $this->checkApiRequest($request->getPathInfo(), $entry['path']);
+                $host = $this->checkApiRequest($request->getHost(),
+                    $entry['host']);
+                $path = $this->checkApiRequest($request->getPathInfo(),
+                    $entry['path']);
 
                 if (!empty($entry['host']) && !empty($entry['path']) && $host && $path) {
                     $found = true;
@@ -156,25 +165,16 @@ final class Api
     }
 
     /**
-     * Are we in development environment.
-     */
-    public function isDev(): bool
-    {
-        return $this->dev;
-    }
-
-    /**
-     * Internal helper function to check for a regex pattern in an array of strings.
-     *
-     * @param string $request
-     * @param array  $options
+     * Internal helper function to check for a regex pattern in an array of
+     * strings.
      *
      * @return bool true if a match is found, false if none are found
      */
     private function checkApiRequest(string $targetString, array $regexes): bool
     {
         foreach ($regexes as $regex) {
-            if (preg_match('@'.str_replace('@', '\@', $regex).'@i', $targetString)) {
+            if (preg_match('@'.str_replace('@', '\@', $regex).'@i',
+                $targetString)) {
                 return true;
             }
         }
@@ -184,8 +184,6 @@ final class Api
 
     /**
      * Generate response headers based on our entry point settings.
-     *
-     * @return
      */
     public function getResponseHeaders(Request $request): array
     {
@@ -205,6 +203,50 @@ final class Api
         // Add our entry point data..
         $entry = $this->getEntryPoint($request);
 
-        return array_merge($defaults, $this->options['headers'], $entry['headers']);
+        return array_merge($defaults, $this->options['headers'],
+            $entry['headers']);
+    }
+
+    public function serialize(
+        $value,
+        string $format = null,
+        array $context = []
+    ) {
+        if (!$format) {
+            $contentType = $this->getContentTypeMatch();
+            $format = $this->getFormatForMimeType($contentType);
+        }
+
+        return $this->serializer->serialize(
+            $value,
+            $format,
+            $this->contextBuilder->getContext($context),
+        );
+    }
+
+    public function deserialize(
+        $data,
+        string $type,
+        string $format,
+        array $context = []
+    ) {
+        return $this->serializer->deserialize($data, $type, $format, $context);
+    }
+
+    public function normalize(
+        $value,
+        string $format = null,
+        array $context = []
+    ) {
+        return $this->serializer->normalize(
+            $value,
+            $format,
+            $this->contextBuilder->getContext($context),
+        );
+    }
+
+    public function supportsNormalization($data, string $format = null)
+    {
+        return $this->serializer->supportsNormalization($data, $format);
     }
 }

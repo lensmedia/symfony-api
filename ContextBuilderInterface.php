@@ -1,6 +1,6 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Utils;
+namespace Lens\Bundle\ApiBundle;
 
 interface ContextBuilderInterface
 {

@@ -2,10 +2,11 @@
 
 namespace Lens\Bundle\ApiBundle\DependencyInjection;
 
-use Lens\Bundle\ApiBundle\Utils\Api;
+use Lens\Bundle\ApiBundle\Api;
+use Lens\Bundle\ApiBundle\ContextBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -16,13 +17,22 @@ class LensApiExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yaml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.php');
 
-        // Set constructor arguments for our Api service class.
-        $api = $container
+        // If we have a crh service in our default context options create a reference to use.
+        $dc = &$config['serializer']['default_context'];
+        if (null !== $dc['circular_reference_handler']) {
+            $dc['circular_reference_handler'] = new Reference($dc['circular_reference_handler']);
+        }
+
+        $container
             ->getDefinition(Api::class)
-            ->replaceArgument(0, $config)
-            ->replaceArgument(1, new Reference($config['serializer']['id']));
+            ->replaceArgument(0, new Reference($config['serializer']['id']))
+            ->replaceArgument(3, $config);
+
+        $container
+            ->getDefinition(ContextBuilder::class)
+            ->replaceArgument(3, $config['serializer']['default_context']);
     }
 }

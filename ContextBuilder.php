@@ -1,13 +1,13 @@
 <?php
 
-namespace Lens\Bundle\ApiBundle\Utils;
+namespace Lens\Bundle\ApiBundle;
 
 use Doctrine\Common\Annotations\Reader;
 use Lens\Bundle\ApiBundle\Annotation\Context;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Role\Role;
 
 /**
  * Builds up groups context based on api context name (annotation) or route name/ method name and user roles.
@@ -35,24 +35,30 @@ use Symfony\Component\Security\Core\Role\Role;
  */
 class ContextBuilder implements ContextBuilderInterface
 {
-    private $request;
-    private $tokenStorage;
-    private $reader;
-    private $debug;
+    private ?Request $request;
+    private TokenStorageInterface $tokenStorage;
+    private Reader $reader;
+    private array $defaultContext;
 
-    public function __construct(bool $debug, RequestStack $requestStack, TokenStorageInterface $tokenStorage, Reader $reader)
-    {
-        $this->debug = $debug;
+    public function __construct(
+        RequestStack $requestStack,
+        TokenStorageInterface $tokenStorage,
+        Reader $reader,
+        array $defaultContext = []
+    ) {
         $this->request = $requestStack->getCurrentRequest();
         $this->tokenStorage = $tokenStorage;
         $this->reader = $reader;
+        $this->defaultContext = $defaultContext;
     }
 
-    public function getContext(array $defaultContext = []): array
+    public function getContext(array $context = []): array
     {
-        $context = array_merge_recursive($defaultContext, $this->generateGroupsContext());
-
-        return $context;
+        return array_merge_recursive(
+            $this->defaultContext,
+            $this->generateGroupsContext(),
+            $context
+        );
     }
 
     private function generateGroupsContext(): array
@@ -63,7 +69,6 @@ class ContextBuilder implements ContextBuilderInterface
         $groups[] = 'default';
 
         return [
-            'debug' => $this->debug,
             'groups' => $groups,
         ];
     }
@@ -122,10 +127,6 @@ class ContextBuilder implements ContextBuilderInterface
     {
         $roles = [];
         foreach ($this->getRoleNames() as $role) {
-            if ($role instanceof Role) {
-                $role = $role->getRole();
-            }
-
             $roles[] = strtolower(str_replace('ROLE_', '', $role));
         }
 
