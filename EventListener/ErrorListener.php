@@ -46,9 +46,10 @@ final class ErrorListener
             $serialized = $this->api->serialize(['error' => $normalized]);
 
             if (null !== $this->logger) {
-                $this->logger->debug('API: Serialized error', [
-                    'error' => $error,
-                ]);
+                $this->logger->error(
+                    sprintf('API: Serialized error: %s', $error->getMessage()),
+                    ['error' => $error]
+                );
             }
 
             $response = new Response(
