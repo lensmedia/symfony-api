@@ -37,18 +37,15 @@ class ContextBuilder implements ContextBuilderInterface
 {
     private ?Request $request;
     private TokenStorageInterface $tokenStorage;
-    private Reader $reader;
     private array $defaultContext;
 
     public function __construct(
         RequestStack $requestStack,
         TokenStorageInterface $tokenStorage,
-        Reader $reader,
         array $defaultContext = []
     ) {
         $this->request = $requestStack->getCurrentRequest();
         $this->tokenStorage = $tokenStorage;
-        $this->reader = $reader;
         $this->defaultContext = $defaultContext;
     }
 
@@ -104,16 +101,16 @@ class ContextBuilder implements ContextBuilderInterface
 
         // Get class annotation (used as route name).
         $reflectionClass = new ReflectionClass($controller);
-        $classContextAnnotation = $this->reader->getClassAnnotation($reflectionClass, Context::class);
-        if ($classContextAnnotation) {
-            $classContext = $classContextAnnotation->name;
+        $classAttributes = $reflectionClass->getAttributes(Context::class);
+        if (!empty($classAttributes)) {
+            $classContext = $classAttributes[0]->newInstance()->context;
         }
 
         // Get subclass annotation (or use method name).
         $reflectionMethod = $reflectionClass->getMethod($method);
-        $methodContextAnnotation = $this->reader->getMethodAnnotation($reflectionMethod, Context::class);
-        if ($methodContextAnnotation) {
-            $methodContext = $methodContextAnnotation->name;
+        $methodAttributes = $reflectionMethod->getAttributes(Context::class);
+        if (!empty($methodAttributes)) {
+            $methodContext = $methodAttributes[0]->newInstance()->context;
         }
 
         $groups[] = $classContext;

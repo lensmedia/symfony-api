@@ -33,6 +33,6 @@ class LensApiExtension extends Extension
 
         $container
             ->getDefinition(ContextBuilder::class)
-            ->replaceArgument(3, $config['serializer']['default_context']);
+            ->replaceArgument(2, $config['serializer']['default_context']);
     }
 }

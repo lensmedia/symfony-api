@@ -2,11 +2,12 @@
 
 namespace Lens\Bundle\ApiBundle\Annotation;
 
-/**
- * @Annotation
- * @Target({"CLASS", "METHOD"})
- */
+use Attribute;
+
+#[Attribute(Attribute::TARGET_CLASS|Attribute::TARGET_METHOD)]
 class Context
 {
-    public $name;
+    public function __construct(public string $context)
+    {
+    }
 }

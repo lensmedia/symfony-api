@@ -32,7 +32,6 @@ return static function (ContainerConfigurator $container) {
             ->args([
                 service(RequestStack::class),
                 service(TokenStorageInterface::class),
-                service(Reader::class),
                 [],
             ])
 
