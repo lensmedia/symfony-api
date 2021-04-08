@@ -207,11 +207,8 @@ final class Api implements SerializerInterface, NormalizerInterface
             $entry['headers']);
     }
 
-    public function serialize(
-        $value,
-        string $format = null,
-        array $context = []
-    ) {
+    public function serialize($value, string $format = null, array $context = [])
+    {
         if (!$format) {
             $contentType = $this->getContentTypeMatch();
             $format = $this->getFormatForMimeType($contentType);
@@ -224,20 +221,13 @@ final class Api implements SerializerInterface, NormalizerInterface
         );
     }
 
-    public function deserialize(
-        $data,
-        string $type,
-        string $format,
-        array $context = []
-    ) {
+    public function deserialize($data, string $type, string $format, array $context = [])
+    {
         return $this->serializer->deserialize($data, $type, $format, $context);
     }
 
-    public function normalize(
-        $value,
-        string $format = null,
-        array $context = []
-    ) {
+    public function normalize($value, string $format = null, array $context = [])
+    {
         return $this->serializer->normalize(
             $value,
             $format,

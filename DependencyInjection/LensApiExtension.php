@@ -22,7 +22,7 @@ class LensApiExtension extends Extension
 
         // If we have a crh service in our default context options create a reference to use.
         $dc = &$config['serializer']['default_context'];
-        if (null !== $dc['circular_reference_handler']) {
+        if (!empty(['circular_reference_handler'])) {
             $dc['circular_reference_handler'] = new Reference($dc['circular_reference_handler']);
         }
 
