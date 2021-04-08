@@ -19,17 +19,15 @@ final class Api implements SerializerInterface, NormalizerInterface
     private SerializerInterface $serializer;
     private ContextBuilderInterface $contextBuilder;
 
-    /** @var array configured options */
-    private $options;
+    private array $options;
 
     /** @var array An array with supported mime types (key) and their serializer format (value) */
-    private $supportedMimeTypes;
+    private array $supportedMimeTypes;
 
-    /** @var Negotiator instance */
-    private $negotiator;
+    private Negotiator $negotiator;
 
     /** @var array Caching array for isApiRequest (skip preg matches on extra calls) */
-    private $entryPointCache = [];
+    private array $entryPointCache = [];
 
     public function __construct(
         SerializerInterface $serializer,

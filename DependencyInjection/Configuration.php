@@ -2,116 +2,114 @@
 
 namespace Lens\Bundle\ApiBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * This is the class that validates and merges configuration from your app/config files.
- *
- * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/configuration.html}
- */
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigTreeBuilder()
+    const DEFAULTS = [
+        'accept' => 'application/json',
+        'serializer' => [
+            'id' => SerializerInterface::class,
+            'default_context' => [],
+        ]
+    ];
+
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('lens_api');
         $rootNode = $treeBuilder->getRootNode();
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
         $rootNode
             ->children()
-                ->append($this->addSerializerNode())
-                ->scalarNode('accept')->defaultValue('application/json')->end()
-                ->append($this->addFormatNode())
-                // Common headers.
+                ->scalarNode('accept')->defaultValue(self::DEFAULTS['accept'])->end()
                 ->arrayNode('headers')
                     ->normalizeKeys(false)
                     ->treatNullLike([])
                     ->scalarPrototype()->end()
                 ->end()
-                ->append($this->addEntryPointNode())
             ->end();
+
+        $this->addSerializerNode($rootNode);
+        $this->addFormatNode($rootNode);
+        $this->addEntryPointNode($rootNode);
 
         return $treeBuilder;
     }
 
-    private function addSerializerNode()
+    private function addSerializerNode(ArrayNodeDefinition $rootNode)
     {
-        $treeBuilder = new TreeBuilder('serializer');
-        $node = $treeBuilder->getRootNode();
-
-        $node
+        return $rootNode
             ->children()
-                ->scalarNode('id')->defaultValue(SerializerInterface::class)->end()
-                ->arrayNode('default_context')
-                    ->scalarPrototype()->end()
+                ->arrayNode('serializer')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('id')
+                            ->defaultValue(self::DEFAULTS['serializer']['id'])
+                        ->end()
+                        ->arrayNode('default_context')
+                            ->scalarPrototype()->end()
+                            ->defaultValue(self::DEFAULTS['serializer']['default_context'])
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
-
-        return $node;
     }
 
-    private function addFormatNode()
+    private function addFormatNode(ArrayNodeDefinition $rootNode)
     {
-        $treeBuilder = new TreeBuilder('formats');
-        $node = $treeBuilder->getRootNode();
-
-        $node
-            ->useAttributeAsKey('name')
-            ->arrayPrototype()
-                ->beforeNormalization()
-                    ->ifString()
-                    ->then(function ($v) {
-                        return ['mime-types' => $v];
-                    })
-                ->end()
-                ->scalarPrototype()->end()
-            ->end();
-
-        return $node;
-    }
-
-    private function addEntryPointNode()
-    {
-        $treeBuilder = new TreeBuilder('entry_points');
-        $node = $treeBuilder->getRootNode();
-
-        $node
-            ->useAttributeAsKey('name')
-            ->arrayPrototype()
-                ->children()
-                    ->arrayNode('path')
+        return $rootNode
+            ->children()
+                ->arrayNode('formats')
+                    ->useAttributeAsKey('name')
+                    ->arrayPrototype()
                         ->beforeNormalization()
                             ->ifString()
                             ->then(function ($v) {
-                                return [$v];
+                                return ['mime-types' => $v];
                             })
                         ->end()
                         ->scalarPrototype()->end()
                     ->end()
-                    ->arrayNode('host')
-                        ->beforeNormalization()
-                            ->ifString()
-                            ->then(function ($v) {
-                                return [$v];
-                            })
+                ->end()
+            ->end();
+    }
+
+    private function addEntryPointNode(ArrayNodeDefinition $rootNode)
+    {
+        return $rootNode
+            ->children()
+                ->arrayNode('entry_points')
+                ->useAttributeAsKey('name')
+                ->arrayPrototype()
+                    ->children()
+                        ->arrayNode('path')
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v) {
+                                    return [$v];
+                                })
+                            ->end()
+                            ->scalarPrototype()->end()
                         ->end()
-                        ->scalarPrototype()->end()
-                    ->end()
-                    ->arrayNode('headers')
-                        ->normalizeKeys(false)
-                        ->treatNullLike([])
-                        ->scalarPrototype()->end()
+                        ->arrayNode('host')
+                            ->beforeNormalization()
+                                ->ifString()
+                                ->then(function ($v) {
+                                    return [$v];
+                                })
+                            ->end()
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('headers')
+                            ->normalizeKeys(false)
+                            ->treatNullLike([])
+                            ->scalarPrototype()->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end();
-
-        return $node;
     }
 }
