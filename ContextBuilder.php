@@ -2,7 +2,6 @@
 
 namespace Lens\Bundle\ApiBundle;
 
-use Doctrine\Common\Annotations\Reader;
 use Lens\Bundle\ApiBundle\Annotation\Context;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,13 +34,14 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
  */
 class ContextBuilder implements ContextBuilderInterface
 {
+    private array $defaultContext = [];
+
     private ?Request $request;
-    private TokenStorageInterface $tokenStorage;
-    private array $defaultContext;
+    private ?TokenStorageInterface $tokenStorage;
 
     public function __construct(
         RequestStack $requestStack,
-        TokenStorageInterface $tokenStorage,
+        ?TokenStorageInterface $tokenStorage = null,
         array $defaultContext = []
     ) {
         $this->request = $requestStack->getCurrentRequest();

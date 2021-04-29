@@ -86,7 +86,7 @@ final class Api implements SerializerInterface, NormalizerInterface
      */
     public function getSupportedMimeTypes(): array
     {
-        if (null === $this->supportedMimeTypes) {
+        if (empty($this->supportedMimeTypes)) {
             $this->supportedMimeTypes = [];
 
             foreach ($this->options['formats'] as $format => $mimes) {

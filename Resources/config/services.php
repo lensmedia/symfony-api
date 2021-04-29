@@ -2,7 +2,6 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Doctrine\Common\Annotations\Reader;
 use Lens\Bundle\ApiBundle\EventListener\ContentNegotiationListener;
 use Lens\Bundle\ApiBundle\EventListener\ErrorListener;
 use Lens\Bundle\ApiBundle\EventListener\OptionsRequestListener;
