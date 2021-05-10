@@ -69,11 +69,9 @@ final class Api implements SerializerInterface, NormalizerInterface
     }
 
     /**
-     * Get a serializer instance.
-     *
-     * @return SerializerInterface|null
+     * Get a api serializer instance (for user access).
      */
-    public function getSerializer()
+    public function getSerializer(): ?SerializerInterface
     {
         return $this->serializer;
     }
@@ -131,35 +129,30 @@ final class Api implements SerializerInterface, NormalizerInterface
 
         $requestHash = spl_object_hash($request);
         if (!isset($this->entryPointCache[$requestHash])) {
-            $found = false;
             foreach ($this->options['entry_points'] as $entry) {
-                $host = $this->checkApiRequest($request->getHost(),
-                    $entry['host']);
-                $path = $this->checkApiRequest($request->getPathInfo(),
-                    $entry['path']);
+                $host = $this->checkApiRequest($request->getHost(), $entry['host']);
+                $path = $this->checkApiRequest($request->getPathInfo(), $entry['path']);
 
                 if (!empty($entry['host']) && !empty($entry['path']) && $host && $path) {
-                    $found = true;
+                    $this->entryPointCache[$requestHash] = $entry;
                     break;
                 }
 
                 if (!empty($entry['host']) && $host) {
-                    $found = true;
+                    $this->entryPointCache[$requestHash] = $entry;
                     break;
                 }
 
                 if (!empty($entry['path']) && $path) {
-                    $found = true;
+                    $this->entryPointCache[$requestHash] = $entry;
                     break;
                 }
             }
-
-            if ($found) {
-                $this->entryPointCache[$requestHash] = $entry;
-            }
         }
 
-        return isset($this->entryPointCache[$requestHash]) ? $this->entryPointCache[$requestHash] : null;
+        return isset($this->entryPointCache[$requestHash])
+            ? $this->entryPointCache[$requestHash]
+            : null;
     }
 
     /**
@@ -201,11 +194,10 @@ final class Api implements SerializerInterface, NormalizerInterface
         // Add our entry point data..
         $entry = $this->getEntryPoint($request);
 
-        return array_merge($defaults, $this->options['headers'],
-            $entry['headers']);
+        return array_merge($defaults, $this->options['headers'], $entry['headers']);
     }
 
-    public function serialize($value, string $format = null, array $context = [])
+    public function serialize($data, string $format = null, array $context = []): string
     {
         if (!$format) {
             $contentType = $this->getContentTypeMatch();
@@ -213,27 +205,27 @@ final class Api implements SerializerInterface, NormalizerInterface
         }
 
         return $this->serializer->serialize(
-            $value,
+            $data,
             $format,
             $this->contextBuilder->getContext($context),
         );
     }
 
-    public function deserialize($data, string $type, string $format, array $context = [])
+    public function deserialize($data, string $type, string $format, array $context = []): mixed
     {
         return $this->serializer->deserialize($data, $type, $format, $context);
     }
 
-    public function normalize($value, string $format = null, array $context = [])
+    public function normalize($object, string $format = null, array $context = []): mixed
     {
         return $this->serializer->normalize(
-            $value,
+            $object,
             $format,
             $this->contextBuilder->getContext($context),
         );
     }
 
-    public function supportsNormalization($data, string $format = null)
+    public function supportsNormalization($data, string $format = null): bool
     {
         return $this->serializer->supportsNormalization($data, $format);
     }

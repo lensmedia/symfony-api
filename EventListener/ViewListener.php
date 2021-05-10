@@ -13,11 +13,8 @@ use Symfony\Component\HttpKernel\Event\ViewEvent;
  */
 final class ViewListener
 {
-    private $api;
-
-    public function __construct(Api $api)
+    public function __construct(private Api $api)
     {
-        $this->api = $api;
     }
 
     public function onKernelView(ViewEvent $event): void

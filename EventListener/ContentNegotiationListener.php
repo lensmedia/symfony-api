@@ -10,11 +10,8 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
  */
 final class ContentNegotiationListener
 {
-    private $api;
-
-    public function __construct(Api $api)
+    public function __construct(private Api $api)
     {
-        $this->api = $api;
     }
 
     public function onKernelRequest(RequestEvent $event)

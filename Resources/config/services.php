@@ -65,6 +65,7 @@ return static function (ContainerConfigurator $container) {
             ->args([
                 service(Api::class),
                 service(LoggerInterface::class),
+                [],
             ])
             ->tag('kernel.event_listener', [
                 'event' => KernelEvents::EXCEPTION,

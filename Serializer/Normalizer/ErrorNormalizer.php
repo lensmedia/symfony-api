@@ -14,21 +14,21 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
 {
     use SerializerAwareTrait;
 
-    public function normalize($error, string $format = null, array $context = [])
+    public function normalize($object, string $format = null, array $context = []): array
     {
         $output = [];
 
-        $output['code'] = $error->getCode();
-        $output['message'] = empty($error->getMessage())
+        $output['code'] = $object->getCode();
+        $output['message'] = empty($object->getMessage())
             ? null
-            : $error->getMessage();
+            : $object->getMessage();
 
         if (isset($context['debug']) && $context['debug']) {
-            $output['file'] = $error->getFile();
-            $output['line'] = $error->getLine();
-            $output['trace'] = $error->getTraceAsString();
+            $output['file'] = $object->getFile();
+            $output['line'] = $object->getLine();
+            $output['trace'] = $object->getTraceAsString();
 
-            $previous = $error->getPrevious();
+            $previous = $object->getPrevious();
             if ($previous) {
                 $output['previous'] = $this->serializer->normalize(
                     $previous,
@@ -41,7 +41,7 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
         return $output;
     }
 
-    public function supportsNormalization($data, string $format = null)
+    public function supportsNormalization($data, string $format = null): bool
     {
         return $data instanceof Throwable;
     }

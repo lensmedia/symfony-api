@@ -4,6 +4,8 @@ namespace Lens\Bundle\ApiBundle\DependencyInjection;
 
 use Lens\Bundle\ApiBundle\Api;
 use Lens\Bundle\ApiBundle\ContextBuilder;
+use Lens\Bundle\ApiBundle\EventListener\ErrorListener;
+use Lens\Bundle\ApiBundle\Serializer\CircularReferenceHandler;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -34,5 +36,16 @@ class LensApiExtension extends Extension
         $container
             ->getDefinition(ContextBuilder::class)
             ->replaceArgument(2, $config['serializer']['default_context']);
+
+        $logger = $config['logger']
+            ? new Reference($config['logger'])
+            : null;
+
+        $container->getDefinition(ErrorListener::class)
+            ->replaceArgument(1, $logger)
+            ->replaceArgument(2, $config['excluded_errors']);
+
+        $container->getDefinition(CircularReferenceHandler::class)
+            ->replaceArgument(0, $logger);
     }
 }

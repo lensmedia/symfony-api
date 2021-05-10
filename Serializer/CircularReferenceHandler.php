@@ -24,7 +24,11 @@ class CircularReferenceHandler
         // Check for id property on object and return its value.
         $reflectionClass = new ReflectionClass($object);
         if (!$reflectionClass->hasProperty('id')) {
-            $this->logger->warning(static::class.' was triggered but no ID property fallback was available (returned null).', [
+            $this->logger?->warning(sprintf(
+                '"%s" was triggered but no ID property fallback was available for "%s" (returned null).',
+                static::class,
+                get_class($object),
+            ), [
                 'object' => $object,
             ]);
 

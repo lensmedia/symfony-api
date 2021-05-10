@@ -14,15 +14,14 @@ use Throwable;
 
 final class ErrorListener
 {
-    private Api $api;
-    private LoggerInterface $logger;
+    const IGNORE_LISTENER = 'listener';
+    const IGNORE_LOGGER = 'logger';
 
     public function __construct(
-        Api $api,
-        LoggerInterface $logger
+        private Api $api,
+        private LoggerInterface $logger,
+        private array $excludedErrors = [],
     ) {
-        $this->api = $api;
-        $this->logger = $logger;
     }
 
     public function onKernelException(ExceptionEvent $event)
@@ -33,8 +32,13 @@ final class ErrorListener
             return;
         }
 
-        // Get error and serialize.
         $error = $event->getThrowable();
+
+        if ($this->isExcluded($error, self::IGNORE_LISTENER)) {
+            return;
+        }
+
+        // Get error and serialize.
         $responseHeaders = $this->api->getResponseHeaders($request);
 
         // Try using our serializer to format our message.
@@ -45,8 +49,8 @@ final class ErrorListener
             $normalized = ['status' => $status] + $this->api->normalize($error);
             $serialized = $this->api->serialize(['error' => $normalized]);
 
-            if (null !== $this->logger) {
-                $this->logger->error(
+            if (!$this->isExcluded($error, self::IGNORE_LOGGER)) {
+                $this->logger?->error(
                     sprintf('API: Serialized error: %s', $error->getMessage()),
                     ['error' => $error]
                 );
@@ -61,8 +65,8 @@ final class ErrorListener
             // If we had an error trying to serialize just print out a string (since we can't use our serializer).
             $responseHeaders['content-type'] = 'text/plain';
 
-            if (null !== $this->logger) {
-                $this->logger->error('API: Error listener serialization failed.', [
+            if (!$this->isExcluded($error, self::IGNORE_LOGGER)) {
+                $this->logger?->error('API: Error listener serialization failed.', [
                     'error' => $e,
                     'target' => $error,
                 ]);
@@ -83,20 +87,32 @@ final class ErrorListener
      * Some built in errors don't have any associated status
      * code or implement it differently.
      */
-    private static function getStatusCodeFromError(Throwable $error = null)
+    private static function getStatusCodeFromError(?Throwable $error = null): int
     {
-        if (null === $error) {
-            return 500;
-        }
-
         if ($error instanceof HttpExceptionInterface) {
             return $error->getStatusCode();
         } elseif ($error instanceof AccessDeniedException) {
             return $error->getCode();
         } elseif ($error instanceof AuthenticationException) {
             return Response::HTTP_UNAUTHORIZED;
+        } else {
+            return 500;
+        }
+    }
+
+    /**
+     * Test our options array to see if the specified class is excluded.
+     */
+    private function isExcluded(throwable $object, string $state): bool
+    {
+        if (empty($this->excludedErrors)) {
+            return false;
         }
 
-        return 500;
+        $class = is_string($object)
+            ? $object
+            : get_class($object);
+
+        return in_array($class, $this->excludedErrors[$state]);
     }
 }
