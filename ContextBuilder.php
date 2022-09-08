@@ -94,7 +94,12 @@ class ContextBuilder implements ContextBuilderInterface
             return $groups;
         }
 
-        list($controller, $method) = preg_split('~::~', $controller);
+        $splits = preg_split('~::~', $controller);
+        if (count($splits) <= 1) {
+            return $groups;
+        }
+
+        [$controller, $method] = $splits;
 
         $classContext = $this->request->get('_route');
         $methodContext = $method;
