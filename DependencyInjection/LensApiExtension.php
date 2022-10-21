@@ -43,7 +43,7 @@ class LensApiExtension extends Extension
 
         $container->getDefinition(ErrorListener::class)
             ->replaceArgument(1, $logger)
-            ->replaceArgument(2, $config['excluded_errors']);
+            ->replaceArgument(3, $config['excluded_errors']);
 
         $container->getDefinition(CircularReferenceHandler::class)
             ->replaceArgument(0, $logger);

@@ -5,6 +5,7 @@ namespace Lens\Bundle\ApiBundle\EventListener;
 use Error;
 use Lens\Bundle\ApiBundle\Api;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -20,6 +21,7 @@ final class ErrorListener
     public function __construct(
         private Api $api,
         private LoggerInterface $logger,
+        private RequestStack $requestStack,
         private array $excludedErrors = [],
     ) {
     }
@@ -37,6 +39,10 @@ final class ErrorListener
         if ($this->isExcluded($error, self::IGNORE_LISTENER)) {
             return;
         }
+
+        // Request stack is still empty in this listener so pushing
+        // the current one so it can be used later in the serializer.
+        $this->requestStack->push($event->getRequest());
 
         // Get error and serialize.
         $responseHeaders = $this->api->getResponseHeaders($request);
