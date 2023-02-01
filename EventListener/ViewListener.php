@@ -7,14 +7,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 
 /**
- * Our view listener intercepts any return from controllers that are not instances/inherited of a Response class.
+ * Our view listener intercepts any return from controllers that are not
+ * instances/inherited of a Response class.
  *
  * In here we convert any data to a response for it to be serialized and returned.
  */
 final class ViewListener
 {
-    public function __construct(private Api $api)
-    {
+    public function __construct(
+        private readonly Api $api,
+    ) {
     }
 
     public function onKernelView(ViewEvent $event): void
@@ -27,10 +29,10 @@ final class ViewListener
         $headers = $this->api->getResponseHeaders($request);
 
         $controllerResult = $event->getControllerResult();
-
         if (null === $controllerResult) {
             $response = new Response(null, Response::HTTP_NO_CONTENT, $headers);
             $event->setResponse($response);
+
             return;
         }
 

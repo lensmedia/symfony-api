@@ -2,14 +2,12 @@
 
 namespace Lens\Bundle\ApiBundle\Serializer\Normalizer;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
 use Throwable;
 
-/**
- * Normalize thrown errors to an array.
- */
 class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
 {
     use SerializerAwareTrait;
@@ -18,24 +16,35 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
     {
         $output = [];
 
+        if ($object instanceof HttpException) {
+            $output['status_code'] = $object->getStatusCode();
+        }
+
         $output['code'] = $object->getCode();
         $output['message'] = empty($object->getMessage())
             ? null
             : $object->getMessage();
 
-        if (isset($context['debug']) && $context['debug']) {
-            $output['file'] = $object->getFile();
-            $output['line'] = $object->getLine();
-            $output['trace'] = $object->getTraceAsString();
+        // Do not do anything else if it is not debug.
+        if (($context['debug'] ?? false) !== true) {
+            return $output;
+        }
 
-            $previous = $object->getPrevious();
-            if ($previous) {
-                $output['previous'] = $this->serializer->normalize(
-                    $previous,
-                    $format,
-                    $context
-                );
-            }
+        if ($object instanceof HttpException) {
+            $output['headers'] = $object->getHeaders();
+        }
+
+        $output['file'] = $object->getFile();
+        $output['line'] = $object->getLine();
+        $output['trace'] = $object->getTraceAsString();
+
+        $previous = $object->getPrevious();
+        if ($previous) {
+            $output['previous'] = $this->serializer->normalize(
+                $previous,
+                $format,
+                $context,
+            );
         }
 
         return $output;

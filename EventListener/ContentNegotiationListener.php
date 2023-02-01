@@ -10,23 +10,20 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
  */
 final class ContentNegotiationListener
 {
-    public function __construct(private Api $api)
-    {
+    public function __construct(
+        private readonly Api $api,
+    ) {
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
-        // Abort if our request is not an api request (set by hosts/paths in our config).
         $request = $event->getRequest();
         if (!$this->api->isApiRequest($request)) {
             return;
         }
 
-        // Get our best match, if we have any set our request format.
         $match = $this->api->getContentTypeMatch($request);
-        if (null !== $match) {
-            $format = $this->api->getFormatForMimeType($match);
-            $request->setRequestFormat($format);
-        }
+        $format = $this->api->getFormatForMimeType($match);
+        $request->setRequestFormat($format);
     }
 }

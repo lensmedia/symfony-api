@@ -1,7 +1,7 @@
 {
     "name": "lensmedia/symfony-api",
     "type": "symfony-bundle",
-    "version": "0.5.6",
+    "version": "0.6.0",
     "description": "Custom API Bundle for some of our endpoints.",
     "authors": [
         {
@@ -11,12 +11,12 @@
     ],
     "license": "MIT",
     "require": {
-        "php": ">=8",
-        "symfony/framework-bundle": ">=5",
+        "php": "^8.1",
+        "symfony/framework-bundle": "^6.2",
         "symfony/monolog-bundle": "*",
         "symfony/serializer-pack": "*",
         "willdurand/negotiation": "*",
-        "symfony/security-core": ">=5"
+        "symfony/security-core": "^6.2"
     },
     "autoload": {
         "psr-4": {

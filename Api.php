@@ -15,12 +15,6 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 final class Api implements SerializerInterface, NormalizerInterface
 {
-    private RequestStack $requestStack;
-    private SerializerInterface $serializer;
-    private ContextBuilderInterface $contextBuilder;
-
-    private array $options;
-
     /** @var array An array with supported mime types (key) and their serializer format (value) */
     private array $supportedMimeTypes;
 
@@ -30,17 +24,11 @@ final class Api implements SerializerInterface, NormalizerInterface
     private array $entryPointCache = [];
 
     public function __construct(
-        SerializerInterface $serializer,
-        RequestStack $requestStack,
-        ContextBuilder $contextBuilder,
-        array $options
+        private readonly SerializerInterface $serializer,
+        private readonly RequestStack $requestStack,
+        private readonly ContextBuilder $contextBuilder,
+        private readonly array $options
     ) {
-        $this->requestStack = $requestStack;
-        $this->serializer = $serializer;
-        $this->contextBuilder = $contextBuilder;
-
-        $this->options = $options;
-
         $this->negotiator = new Negotiator();
     }
 
@@ -62,10 +50,10 @@ final class Api implements SerializerInterface, NormalizerInterface
         /** @var Accept $accept */
         $accept = $this->negotiator->getBest(
             $request->headers->get('accept', $this->options['accept']),
-            array_keys($this->getSupportedMimeTypes())
+            array_keys($this->getSupportedMimeTypes()),
         );
 
-        return ($accept ? $accept->getType() : null) ?? $this->options['accept'];
+        return $accept?->getType() ?? $this->options['accept'];
     }
 
     /**
@@ -102,11 +90,7 @@ final class Api implements SerializerInterface, NormalizerInterface
      */
     public function getFormatForMimeType(string $mime): ?string
     {
-        if (isset($this->supportedMimeTypes[$mime])) {
-            return $this->supportedMimeTypes[$mime];
-        }
-
-        return null;
+        return $this->supportedMimeTypes[$mime] ?? null;
     }
 
     /**
@@ -150,9 +134,7 @@ final class Api implements SerializerInterface, NormalizerInterface
             }
         }
 
-        return isset($this->entryPointCache[$requestHash])
-            ? $this->entryPointCache[$requestHash]
-            : null;
+        return $this->entryPointCache[$requestHash] ?? null;
     }
 
     /**
@@ -164,8 +146,7 @@ final class Api implements SerializerInterface, NormalizerInterface
     private function checkApiRequest(string $targetString, array $regexes): bool
     {
         foreach ($regexes as $regex) {
-            if (preg_match('@'.str_replace('@', '\@', $regex).'@i',
-                $targetString)) {
+            if (preg_match('@'.str_replace('@', '\@', $regex).'@i', $targetString)) {
                 return true;
             }
         }
@@ -211,13 +192,20 @@ final class Api implements SerializerInterface, NormalizerInterface
         );
     }
 
-    public function deserialize($data, string $type, string $format, array $context = []): mixed
-    {
+    public function deserialize(
+        $data,
+        string $type,
+        string $format,
+        array $context = [],
+    ): mixed {
         return $this->serializer->deserialize($data, $type, $format, $context);
     }
 
-    public function normalize($object, string $format = null, array $context = []): mixed
-    {
+    public function normalize(
+        $object,
+        string $format = null,
+        array $context = [],
+    ): mixed {
         return $this->serializer->normalize(
             $object,
             $format,
@@ -225,8 +213,11 @@ final class Api implements SerializerInterface, NormalizerInterface
         );
     }
 
-    public function supportsNormalization($data, string $format = null): bool
-    {
+    public function supportsNormalization(
+        $data,
+        string $format = null,
+        array $context = [],
+    ): bool {
         return $this->serializer->supportsNormalization($data, $format);
     }
 }

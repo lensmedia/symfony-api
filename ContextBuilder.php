@@ -2,14 +2,15 @@
 
 namespace Lens\Bundle\ApiBundle;
 
-use Lens\Bundle\ApiBundle\Annotation\Context;
+use Lens\Bundle\ApiBundle\Attribute\Context;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
- * Builds up groups context based on api context name (annotation) or route name/ method name and user roles.
+ * Builds up groups context based on api context name (annotation) or route name/ method
+ * name and user roles.
  *
  * Example case:
  * Using:
@@ -30,23 +31,19 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
  * 10 => "assortments_index_admin"
  *
  * These can then be used by our serialization groups annotation.
- * *note* the exponential increase for each role available to the user. If a user has to many roles this gets real bad.
+ * *note* the exponential increase for each role available to the user. If a user has to
+ * many roles this gets real bad.
  */
 class ContextBuilder implements ContextBuilderInterface
 {
-    private array $defaultContext = [];
-
     private ?Request $request;
-    private ?TokenStorageInterface $tokenStorage;
 
     public function __construct(
         RequestStack $requestStack,
-        ?TokenStorageInterface $tokenStorage = null,
-        array $defaultContext = []
+        private readonly ?TokenStorageInterface $tokenStorage = null,
+        private readonly array $defaultContext = [],
     ) {
         $this->request = $requestStack->getCurrentRequest();
-        $this->tokenStorage = $tokenStorage;
-        $this->defaultContext = $defaultContext;
     }
 
     public function getContext(array $context = []): array
@@ -54,7 +51,7 @@ class ContextBuilder implements ContextBuilderInterface
         return array_merge_recursive(
             $this->defaultContext,
             $this->generateGroupsContext(),
-            $context
+            $context,
         );
     }
 
@@ -94,7 +91,7 @@ class ContextBuilder implements ContextBuilderInterface
             return $groups;
         }
 
-        $splits = preg_split('~::~', $controller);
+        $splits = explode('::', $controller);
         if (count($splits) <= 1) {
             return $groups;
         }

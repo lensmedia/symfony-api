@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    const DEFAULTS = [
+    private const DEFAULTS = [
         'accept' => 'application/json',
         'serializer' => [
             'id' => SerializerInterface::class,
@@ -46,9 +46,9 @@ class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    private function addSerializerNode(ArrayNodeDefinition $rootNode)
+    private function addSerializerNode(ArrayNodeDefinition $rootNode): void
     {
-        return $rootNode
+        $rootNode
             ->children()
                 ->arrayNode('serializer')
                     ->addDefaultsIfNotSet()
@@ -65,9 +65,9 @@ class Configuration implements ConfigurationInterface
             ->end();
     }
 
-    private function addFormatNode(ArrayNodeDefinition $rootNode)
+    private function addFormatNode(ArrayNodeDefinition $rootNode): void
     {
-        return $rootNode
+        $rootNode
             ->children()
                 ->arrayNode('formats')
                     ->useAttributeAsKey('name')
@@ -84,9 +84,9 @@ class Configuration implements ConfigurationInterface
             ->end();
     }
 
-    private function addEntryPointNode(ArrayNodeDefinition $rootNode)
+    private function addEntryPointNode(ArrayNodeDefinition $rootNode): void
     {
-        return $rootNode
+        $rootNode
             ->children()
                 ->arrayNode('entry_points')
                 ->useAttributeAsKey('name')
@@ -120,9 +120,9 @@ class Configuration implements ConfigurationInterface
             ->end();
     }
 
-    private function addExcludedErrorsNode(ArrayNodeDefinition $rootNode)
+    private function addExcludedErrorsNode(ArrayNodeDefinition $rootNode): void
     {
-        return $rootNode
+        $rootNode
             ->children()
                 ->arrayNode('excluded_errors')
                     ->addDefaultsIfNotSet()
