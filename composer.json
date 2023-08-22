@@ -1,7 +1,7 @@
 {
     "name": "lensmedia/symfony-api",
     "type": "symfony-bundle",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "description": "Custom API Bundle for some of our endpoints.",
     "authors": [
         {

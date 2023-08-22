@@ -50,7 +50,7 @@ final class ErrorListener
             $status = self::getStatusCodeFromError($error);
 
             $normalized = ['status' => $status] + $this->api->normalize($error);
-            $serialized = $this->api->serialize(['error' => $normalized]);
+            $serialized = $this->api->serialize($normalized);
 
             if (!$this->isExcluded($error, self::IGNORE_LOGGER)) {
                 $this->logger?->error(sprintf(
