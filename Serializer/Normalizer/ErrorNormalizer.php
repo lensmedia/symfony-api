@@ -2,6 +2,7 @@
 
 namespace Lens\Bundle\ApiBundle\Serializer\Normalizer;
 
+use Lens\Bundle\ApiBundle\Exception\CustomContextHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
@@ -16,14 +17,14 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
     {
         $output = [];
 
-        if ($object instanceof HttpException) {
-            $output['status_code'] = $object->getStatusCode();
-        }
-
         $output['code'] = $object->getCode();
         $output['message'] = empty($object->getMessage())
             ? null
             : $object->getMessage();
+
+        if ($object instanceof CustomContextHttpException) {
+            $output = array_merge($output, $object->getContext());
+        }
 
         // Do not do anything else if it is not debug.
         if (($context['debug'] ?? false) !== true) {

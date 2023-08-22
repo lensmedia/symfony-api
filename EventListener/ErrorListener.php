@@ -97,7 +97,7 @@ final class ErrorListener
         }
 
         if ($error instanceof AccessDeniedException) {
-            return $error->getCode();
+            return Response::HTTP_FORBIDDEN;
         }
 
         if ($error instanceof AuthenticationException) {
