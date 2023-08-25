@@ -2,6 +2,7 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Lens\Bundle\ApiBundle\EventListener\AuthenticationFailedListener;
 use Lens\Bundle\ApiBundle\EventListener\ContentNegotiationListener;
 use Lens\Bundle\ApiBundle\EventListener\ErrorListener;
 use Lens\Bundle\ApiBundle\EventListener\OptionsRequestListener;
@@ -15,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Http\Event\LoginFailureEvent;
 use Symfony\Component\Serializer\SerializerInterface;
 
 return static function (ContainerConfigurator $container) {
@@ -70,6 +72,15 @@ return static function (ContainerConfigurator $container) {
             ])
             ->tag('kernel.event_listener', [
                 'event' => KernelEvents::EXCEPTION,
+                'priority' => 9999
+            ])
+
+        ->set(AuthenticationFailedListener::class)
+            ->args([
+                service(Api::class),
+            ])
+            ->tag('kernel.event_listener', [
+                'event' => LoginFailureEvent::class,
                 'priority' => 9999
             ])
 

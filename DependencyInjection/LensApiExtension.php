@@ -4,6 +4,7 @@ namespace Lens\Bundle\ApiBundle\DependencyInjection;
 
 use Lens\Bundle\ApiBundle\Api;
 use Lens\Bundle\ApiBundle\ContextBuilder;
+use Lens\Bundle\ApiBundle\EventListener\AuthenticationFailedListener;
 use Lens\Bundle\ApiBundle\EventListener\ErrorListener;
 use Lens\Bundle\ApiBundle\Serializer\CircularReferenceHandler;
 use Symfony\Component\Config\FileLocator;

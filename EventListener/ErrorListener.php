@@ -2,11 +2,12 @@
 
 namespace Lens\Bundle\ApiBundle\EventListener;
 
-use Error;
 use Lens\Bundle\ApiBundle\Api;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -34,6 +35,12 @@ final class ErrorListener
         }
 
         $error = $event->getThrowable();
+
+        /** @see AuthenticationFailedListener wraps these exceptions, mostly... */
+        if ($error instanceof AccessDeniedException) {
+            return;
+        }
+
         if ($this->isExcluded($error, self::IGNORE_LISTENER)) {
             return;
         }
@@ -42,13 +49,17 @@ final class ErrorListener
         // the current one so it can be used later in the serializer.
         $this->requestStack->push($event->getRequest());
 
-        $responseHeaders = $this->api->getResponseHeaders($request);
+        $status = self::getStatusCodeFromError($error);
+        $responseHeaders = $this->getResponseHeaders($request, $error);
+
+        // If we have a www-authenticate header we need to set our status to 401
+        // for it to be browser compatible.
+        if ($responseHeaders->has('www-authenticate')) {
+            $status = Response::HTTP_UNAUTHORIZED;
+        }
 
         // Try using our serializer to format our message.
-        $response = null;
         try {
-            $status = self::getStatusCodeFromError($error);
-
             $normalized = ['status' => $status] + $this->api->normalize($error);
             $serialized = $this->api->serialize($normalized);
 
@@ -59,12 +70,8 @@ final class ErrorListener
                 ), ['error' => $error]);
             }
 
-            $response = new Response(
-                $serialized,
-                $status,
-                $responseHeaders,
-            );
-        } catch (Error $e) {
+            $response = new Response($serialized, $status, $responseHeaders->all());
+        } catch (Throwable $e) {
             // If we had an error trying to serialize just print out a string (since we can't use our serializer).
             $responseHeaders['content-type'] = 'text/plain';
 
@@ -75,11 +82,7 @@ final class ErrorListener
                 ]);
             }
 
-            $response = new Response(
-                (string) $error,
-                self::getStatusCodeFromError($error),
-                $responseHeaders,
-            );
+            $response = new Response((string)$error, $status, $responseHeaders);
         }
 
         $event->setResponse($response);
@@ -119,5 +122,16 @@ final class ErrorListener
         $class = get_class($object);
 
         return in_array($class, $this->excludedErrors[$state], true);
+    }
+
+    private function getResponseHeaders(Request $request, Throwable $object): ResponseHeaderBag
+    {
+        $responseHeaders = $this->api->getResponseHeaders($request);
+
+        if ($object instanceof HttpExceptionInterface) {
+            $responseHeaders = array_merge($responseHeaders, $object->getHeaders());
+        }
+
+        return new ResponseHeaderBag($responseHeaders);
     }
 }

@@ -1,7 +1,7 @@
 {
     "name": "lensmedia/symfony-api",
     "type": "symfony-bundle",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "description": "Custom API Bundle for some of our endpoints.",
     "authors": [
         {
@@ -16,7 +16,8 @@
         "symfony/monolog-bundle": "*",
         "symfony/serializer-pack": "*",
         "willdurand/negotiation": "*",
-        "symfony/security-core": "^6.3"
+        "symfony/security-core": "^6.3",
+        "symfony/security-bundle": "^6.3"
     },
     "autoload": {
         "psr-4": {
