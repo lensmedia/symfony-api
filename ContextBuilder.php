@@ -93,7 +93,11 @@ class ContextBuilder implements ContextBuilderInterface
 
         $splits = explode('::', $controller);
         if (count($splits) <= 1) {
-            return $groups;
+            if (method_exists($controller, '__invoke')) {
+                $splits[] = '__invoke';
+            } else {
+                return $groups;
+            }
         }
 
         [$controller, $method] = $splits;
