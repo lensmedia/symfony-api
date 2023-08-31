@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class CustomContextHttpException extends HttpException
 {
     public function __construct(
-        private readonly array $context = [],
+        private array $context = [],
         int $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR,
         string $message = '',
         \Throwable $previous = null,
@@ -16,6 +16,11 @@ class CustomContextHttpException extends HttpException
         int $code = 0,
     ) {
         parent::__construct($statusCode, $message, $previous, $headers, $code);
+    }
+
+    public function setContext(array $context): void
+    {
+        $this->context = $context;
     }
 
     public function getContext(): array
