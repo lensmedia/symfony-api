@@ -79,7 +79,7 @@ final class ErrorListener
                 ]);
             }
 
-            $response = new Response((string)$error, $status, $responseHeaders);
+            $response = new Response((string)$error, $status, $responseHeaders->all());
         }
 
         $event->setResponse($response);
@@ -93,21 +93,16 @@ final class ErrorListener
     private static function getStatusCodeFromError(?Throwable $error = null): int
     {
         if ($error instanceof HttpExceptionInterface) {
-            dump('what');
             return $error->getStatusCode();
         }
 
         if ($error instanceof AccessDeniedException) {
-            dump('how');
             return Response::HTTP_FORBIDDEN;
         }
 
         if ($error instanceof AuthenticationException) {
-            dump('is');
             return Response::HTTP_UNAUTHORIZED;
         }
-
-        dump('possible');
 
         return 500;
     }
