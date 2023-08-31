@@ -52,12 +52,6 @@ final class ErrorListener
         $status = self::getStatusCodeFromError($error);
         $responseHeaders = $this->getResponseHeaders($request, $error);
 
-        // If we have a www-authenticate header we need to set our status to 401
-        // for it to be browser compatible.
-        if ($responseHeaders->has('www-authenticate')) {
-            $status = Response::HTTP_UNAUTHORIZED;
-        }
-
         // Try using our serializer to format our message.
         try {
             $normalized = ['status' => $status] + $this->api->normalize($error);
@@ -67,7 +61,10 @@ final class ErrorListener
                 $this->logger?->error(sprintf(
                     'API: Serialized error: %s',
                     $error->getMessage(),
-                ), ['error' => $error]);
+                ), context: [
+                    'error' => $error,
+                    'headers' => $responseHeaders->all(),
+                ]);
             }
 
             $response = new Response($serialized, $status, $responseHeaders->all());
@@ -96,16 +93,21 @@ final class ErrorListener
     private static function getStatusCodeFromError(?Throwable $error = null): int
     {
         if ($error instanceof HttpExceptionInterface) {
+            dump('what');
             return $error->getStatusCode();
         }
 
         if ($error instanceof AccessDeniedException) {
+            dump('how');
             return Response::HTTP_FORBIDDEN;
         }
 
         if ($error instanceof AuthenticationException) {
+            dump('is');
             return Response::HTTP_UNAUTHORIZED;
         }
+
+        dump('possible');
 
         return 500;
     }
