@@ -55,4 +55,9 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
     {
         return $data instanceof Throwable;
     }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [];
+    }
 }
