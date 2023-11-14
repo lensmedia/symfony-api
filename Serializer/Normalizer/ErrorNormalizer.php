@@ -58,6 +58,9 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
 
     public function getSupportedTypes(?string $format): array
     {
-        return [];
+        return [
+            CustomContextHttpException::class => true,
+            'object' => false,
+        ];
     }
 }
