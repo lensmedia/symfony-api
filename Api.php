@@ -192,20 +192,13 @@ final class Api implements SerializerInterface, NormalizerInterface
         );
     }
 
-    public function deserialize(
-        $data,
-        string $type,
-        string $format,
-        array $context = [],
-    ): mixed {
+    public function deserialize($data, string $type, string $format, array $context = []): mixed
+    {
         return $this->serializer->deserialize($data, $type, $format, $context);
     }
 
-    public function normalize(
-        $object,
-        string $format = null,
-        array $context = [],
-    ): mixed {
+    public function normalize($object, string $format = null, array $context = []): mixed
+    {
         return $this->serializer->normalize(
             $object,
             $format,
@@ -213,11 +206,13 @@ final class Api implements SerializerInterface, NormalizerInterface
         );
     }
 
-    public function supportsNormalization(
-        $data,
-        string $format = null,
-        array $context = [],
-    ): bool {
+    public function supportsNormalization($data, string $format = null, array $context = []): bool
+    {
         return $this->serializer->supportsNormalization($data, $format);
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return ['*' => false];
     }
 }
