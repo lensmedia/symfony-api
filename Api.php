@@ -2,6 +2,7 @@
 
 namespace Lens\Bundle\ApiBundle;
 
+use ArrayObject;
 use Negotiation\Accept;
 use Negotiation\Negotiator;
 use RuntimeException;
@@ -197,7 +198,7 @@ final class Api implements SerializerInterface, NormalizerInterface
         return $this->serializer->deserialize($data, $type, $format, $context);
     }
 
-    public function normalize($object, string $format = null, array $context = []): mixed
+    public function normalize($object, string $format = null, array $context = []): array|ArrayObject|bool|float|int|null|string
     {
         return $this->serializer->normalize(
             $object,
