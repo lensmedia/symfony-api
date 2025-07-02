@@ -4,6 +4,7 @@ namespace Lens\Bundle\ApiBundle\Exception;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Throwable;
 
 class CustomContextHttpException extends HttpException
 {
@@ -11,7 +12,7 @@ class CustomContextHttpException extends HttpException
         private array $context = [],
         int $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR,
         string $message = '',
-        \Throwable $previous = null,
+        Throwable $previous = null,
         array $headers = [],
         int $code = 0,
     ) {

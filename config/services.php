@@ -2,15 +2,15 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Lens\Bundle\ApiBundle\Api;
+use Lens\Bundle\ApiBundle\ContextBuilder;
+use Lens\Bundle\ApiBundle\ContextBuilderInterface;
 use Lens\Bundle\ApiBundle\EventListener\ContentNegotiationListener;
 use Lens\Bundle\ApiBundle\EventListener\ErrorListener;
 use Lens\Bundle\ApiBundle\EventListener\OptionsRequestListener;
 use Lens\Bundle\ApiBundle\EventListener\ViewListener;
 use Lens\Bundle\ApiBundle\Serializer\CircularReferenceHandler;
 use Lens\Bundle\ApiBundle\Serializer\Normalizer\ErrorNormalizer;
-use Lens\Bundle\ApiBundle\Api;
-use Lens\Bundle\ApiBundle\ContextBuilder;
-use Lens\Bundle\ApiBundle\ContextBuilderInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\KernelEvents;

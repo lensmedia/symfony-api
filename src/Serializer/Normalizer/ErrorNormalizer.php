@@ -14,19 +14,19 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
     use SerializerAwareTrait;
 
     /**
-     * @param Throwable $object
+     * @param Throwable $data
      */
-    public function normalize(mixed $object, string $format = null, array $context = []): array
+    public function normalize(mixed $data, ?string $format = null, array $context = []): array
     {
         $output = [];
 
-        $output['code'] = $object->getCode();
-        $output['message'] = empty($object->getMessage())
+        $output['code'] = $data->getCode();
+        $output['message'] = empty($data->getMessage())
             ? null
-            : $object->getMessage();
+            : $data->getMessage();
 
-        if ($object instanceof CustomContextHttpException) {
-            $output = array_merge($output, $object->getContext());
+        if ($data instanceof CustomContextHttpException) {
+            $output = array_merge($output, $data->getContext());
         }
 
         // Do not do anything else if it is not debug.
@@ -34,15 +34,15 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
             return $output;
         }
 
-        if ($object instanceof HttpException) {
-            $output['headers'] = $object->getHeaders();
+        if ($data instanceof HttpException) {
+            $output['headers'] = $data->getHeaders();
         }
 
-        $output['file'] = $object->getFile();
-        $output['line'] = $object->getLine();
-        $output['trace'] = $object->getTraceAsString();
+        $output['file'] = $data->getFile();
+        $output['line'] = $data->getLine();
+        $output['trace'] = $data->getTraceAsString();
 
-        $previous = $object->getPrevious();
+        $previous = $data->getPrevious();
         if ($previous) {
             $output['previous'] = $this->serializer->normalize(
                 $previous,
@@ -54,7 +54,7 @@ class ErrorNormalizer implements NormalizerInterface, SerializerAwareInterface
         return $output;
     }
 
-    public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof Throwable;
     }

@@ -38,7 +38,7 @@ final class Api implements SerializerInterface, NormalizerInterface
      * This also defaults our api to the to application/json format if nothing
      * else was set.
      */
-    public function getContentTypeMatch(Request $request = null): string
+    public function getContentTypeMatch(?Request $request = null): string
     {
         if (null === $request) {
             $request = $this->requestStack->getCurrentRequest();
@@ -179,7 +179,7 @@ final class Api implements SerializerInterface, NormalizerInterface
         return array_merge($defaults, $this->options['headers'], $entry['headers']);
     }
 
-    public function serialize($data, string $format = null, array $context = []): string
+    public function serialize($data, ?string $format = null, array $context = []): string
     {
         if (!$format) {
             $contentType = $this->getContentTypeMatch();
@@ -193,21 +193,21 @@ final class Api implements SerializerInterface, NormalizerInterface
         );
     }
 
-    public function deserialize($data, string $type, string $format, array $context = []): mixed
+    public function deserialize(mixed $data, string $type, string $format, array $context = []): mixed
     {
         return $this->serializer->deserialize($data, $type, $format, $context);
     }
 
-    public function normalize($object, string $format = null, array $context = []): array|ArrayObject|bool|float|int|null|string
+    public function normalize(mixed $data, ?string $format = null, array $context = []): array|ArrayObject|bool|float|int|null|string
     {
         return $this->serializer->normalize(
-            $object,
+            $data,
             $format,
             $this->contextBuilder->getContext($context),
         );
     }
 
-    public function supportsNormalization($data, string $format = null, array $context = []): bool
+    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $this->serializer->supportsNormalization($data, $format);
     }
