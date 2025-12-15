@@ -5,6 +5,7 @@ namespace Lens\Bundle\ApiBundle\EventListener;
 use Lens\Bundle\ApiBundle\Api;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 /**
  * Our view listener intercepts any return from controllers that are not
@@ -19,6 +20,11 @@ final class ViewListener
     ) {
     }
 
+    /**
+     * Converts controller results to proper API responses.
+     *
+     * @throws ExceptionInterface when serialization fails
+     */
     public function onKernelView(ViewEvent $event): void
     {
         $request = $event->getRequest();
