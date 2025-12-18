@@ -8,10 +8,10 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 /**
  * Set Symfony's internal request format by doing content negotiation.
  */
-final class ContentNegotiationListener
+final readonly class ContentNegotiationListener
 {
     public function __construct(
-        private readonly Api $api,
+        private Api $api,
     ) {
     }
 

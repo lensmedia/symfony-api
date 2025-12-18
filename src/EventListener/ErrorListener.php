@@ -16,8 +16,8 @@ use Throwable;
 
 final class ErrorListener
 {
-    public const IGNORE_LISTENER = 'listener';
-    public const IGNORE_LOGGER = 'logger';
+    public const string IGNORE_LISTENER = 'listener';
+    public const string IGNORE_LOGGER = 'logger';
 
     public function __construct(
         private readonly Api $api,

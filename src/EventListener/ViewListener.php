@@ -13,10 +13,10 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
  *
  * In here we convert any data to a response for it to be serialized and returned.
  */
-final class ViewListener
+final readonly class ViewListener
 {
     public function __construct(
-        private readonly Api $api,
+        private Api $api,
     ) {
     }
 

@@ -12,7 +12,7 @@ class CustomContextHttpException extends HttpException
         private array $context = [],
         int $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR,
         string $message = '',
-        Throwable $previous = null,
+        ?Throwable $previous = null,
         array $headers = [],
         int $code = 0,
     ) {

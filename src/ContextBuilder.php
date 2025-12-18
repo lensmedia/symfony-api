@@ -86,7 +86,7 @@ class ContextBuilder implements ContextBuilderInterface
     {
         $groups = [];
 
-        $controller = $this->request->get('_controller');
+        $controller = $this->request->attributes->get('_controller');
         if (!$controller) {
             return $groups;
         }
@@ -102,7 +102,7 @@ class ContextBuilder implements ContextBuilderInterface
 
         [$controller, $method] = $splits;
 
-        $classContext = $this->request->get('_route');
+        $classContext = $this->request->attributes->get('_route');
         $methodContext = $method;
 
         // Get class annotation (used as route name).

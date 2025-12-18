@@ -6,10 +6,10 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 
-class CircularReferenceHandler
+readonly class CircularReferenceHandler
 {
     public function __construct(
-        private readonly LoggerInterface $logger,
+        private LoggerInterface $logger,
     ) {
     }
 
